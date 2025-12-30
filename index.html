@@ -8,13 +8,19 @@
       :root {
         --outside: #0b0d10;
         --outside2: #07080a;
+
         --board: #5b0f14; /* deep red */
-        --board2: #4a0d11;
-        --ink: rgba(244, 241, 234, 0.9);
+        --boardEdge: rgba(0, 0, 0, 0.24);
+        --boardInnerEdge: rgba(255, 255, 255, 0.06);
+
+        --ink: rgba(244, 241, 234, 0.92);
         --ink2: rgba(244, 241, 234, 0.7);
         --ink3: rgba(244, 241, 234, 0.5);
-        --grid: rgba(0, 0, 0, 0.25);
+
+        --gridLine: rgba(0, 0, 0, 0.22);
+
         --shadow: rgba(0, 0, 0, 0.55);
+
         --wood: rgba(144, 98, 62, 0.92);
         --woodDark: rgba(58, 35, 18, 0.55);
         --moss: rgba(33, 120, 58, 0.55);
@@ -32,8 +38,8 @@
       body {
         margin: 0;
         background:
-          radial-gradient(1200px 650px at 20% 10%, rgba(120, 140, 160, 0.08), transparent 55%),
-          radial-gradient(1000px 650px at 85% 15%, rgba(90, 100, 80, 0.06), transparent 55%),
+          radial-gradient(1200px 650px at 18% 10%, rgba(120, 140, 160, 0.08), transparent 55%),
+          radial-gradient(1000px 650px at 85% 18%, rgba(90, 100, 80, 0.06), transparent 55%),
           linear-gradient(180deg, var(--outside), var(--outside2));
         color: var(--ink);
       }
@@ -61,6 +67,18 @@
         text-decoration: underline;
         text-decoration-style: dotted;
         text-underline-offset: 4px;
+      }
+
+      .srOnly {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       .view {
@@ -114,8 +132,8 @@
         overflow: hidden;
         box-shadow:
           0 22px 55px var(--shadow),
-          inset 0 0 0 2px rgba(0, 0, 0, 0.22),
-          inset 0 0 0 7px rgba(255, 255, 255, 0.05);
+          inset 0 0 0 2px var(--boardEdge),
+          inset 0 0 0 7px var(--boardInnerEdge);
         transform: rotate(-0.35deg);
       }
 
@@ -168,8 +186,8 @@
 
       .cell {
         position: relative;
-        border-right: 1px solid rgba(0, 0, 0, 0.22);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.22);
+        border-right: 1px solid var(--gridLine);
+        border-bottom: 1px solid var(--gridLine);
         background:
           radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.06), transparent 62%),
           radial-gradient(circle at 70% 78%, rgba(0, 0, 0, 0.1), transparent 65%);
@@ -188,7 +206,7 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        opacity: 0.65;
+        opacity: 0.6;
         background:
           radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.035), transparent 55%),
           radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
@@ -200,7 +218,7 @@
         left: 7px;
         font-size: 9px;
         letter-spacing: 0.2px;
-        color: rgba(255, 255, 255, 0.36);
+        color: rgba(255, 255, 255, 0.34);
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
           monospace;
         user-select: none;
@@ -339,29 +357,10 @@
         flex-wrap: wrap;
         align-items: center;
       }
-
-      .note {
-        margin-top: 10px;
-        color: rgba(244, 241, 234, 0.62);
-        font-size: 12px;
-        line-height: 1.25;
-      }
-
-      .srOnly {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
     </style>
   </head>
   <body>
-    <!-- piece art (metallic) -->
+    <!-- metallic piece art -->
     <svg class="srOnly" aria-hidden="true">
       <defs>
         <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
@@ -373,16 +372,19 @@
         </linearGradient>
         <filter id="metalRough" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="11" />
-          <feColorMatrix type="matrix" values="
+          <feColorMatrix
+            type="matrix"
+            values="
             1 0 0 0 0
             0 1 0 0 0
             0 0 1 0 0
-            0 0 0 0.16 0" />
+            0 0 0 0.16 0"
+          />
           <feComposite operator="in" in2="SourceGraphic" />
           <feBlend mode="overlay" in2="SourceGraphic" />
         </filter>
 
-        <symbol id="p-shoe" viewBox="0 0 64 64">
+        <symbol id="piece-shoe" viewBox="0 0 64 64">
           <path
             d="M10 40c6 0 10-6 14-14 3-7 7-10 12-10 4 0 6 3 8 6 2 4 4 7 9 9 4 2 7 4 7 8 0 6-6 9-16 9H18c-8 0-12-3-12-8 0-3 2-6 4-6z"
             fill="url(#silverGrad)"
@@ -399,7 +401,7 @@
           />
         </symbol>
 
-        <symbol id="p-hat" viewBox="0 0 64 64">
+        <symbol id="piece-hat" viewBox="0 0 64 64">
           <path
             d="M30 10c10 10 16 22 16 30 0 7-6 10-14 10-7 0-14-3-14-10 0-9 4-18 12-30z"
             fill="url(#silverGrad)"
@@ -416,7 +418,7 @@
           />
         </symbol>
 
-        <symbol id="p-dog" viewBox="0 0 64 64">
+        <symbol id="piece-dog" viewBox="0 0 64 64">
           <path
             d="M18 44c0-10 7-18 16-18 7 0 12 4 14 9 3 0 6 2 6 6 0 5-4 8-9 8-1 5-6 9-13 9-9 0-14-6-14-14z"
             fill="url(#silverGrad)"
@@ -442,7 +444,7 @@
         <div class="stage">
           <div class="boardArea">
             <div class="board" id="single-board">
-              <canvas class="paths" id="single-canvas" aria-hidden="true"></canvas>
+              <canvas class="paths" id="single-canvas" width="1000" height="1000" aria-hidden="true"></canvas>
               <div class="grid" id="single-grid" aria-hidden="true"></div>
               <div class="pieces" id="single-pieces" aria-hidden="true"></div>
             </div>
@@ -488,16 +490,15 @@
             <button id="multi-2" type="button">2 players</button>
             <button id="multi-3" type="button">3 players</button>
           </div>
-          <div class="note">
-            Each player gets a little silver thing.
-            <div style="margin-top: 8px"><a href="#single">Back to single-player</a></div>
+          <div style="margin-top: 10px; color: rgba(244, 241, 234, 0.62)">
+            <a href="#single">Back to single-player</a>
           </div>
         </div>
 
         <div class="stage" id="multi-stage" style="display: none">
           <div class="boardArea">
             <div class="board" id="multi-board">
-              <canvas class="paths" id="multi-canvas" aria-hidden="true"></canvas>
+              <canvas class="paths" id="multi-canvas" width="1000" height="1000" aria-hidden="true"></canvas>
               <div class="grid" id="multi-grid" aria-hidden="true"></div>
               <div class="pieces" id="multi-pieces" aria-hidden="true"></div>
             </div>
@@ -608,10 +609,15 @@
         ];
       }
 
-      function createPiece(shape, label) {
+      function createPiece(symbolId, label) {
         const el = document.createElement("div");
         el.className = "piece";
-        el.innerHTML = `<svg viewBox="0 0 64 64" role="img" aria-label="${label}"><use href="#${shape}"></use></svg>`;
+        // href works in modern browsers; xlink:href helps older ones.
+        el.innerHTML = `
+          <svg viewBox="0 0 64 64" role="img" aria-label="${label}">
+            <use href="#${symbolId}" xlink:href="#${symbolId}"></use>
+          </svg>
+        `;
         return el;
       }
 
@@ -650,7 +656,7 @@
           const { ctx, rect } = res;
           ctx.clearRect(0, 0, rect.width, rect.height);
 
-          // gentle ink smudges (imperfection)
+          // subtle smudges
           ctx.save();
           ctx.globalAlpha = 0.12;
           ctx.fillStyle = "rgba(0,0,0,0.22)";
@@ -664,12 +670,9 @@
           }
           ctx.restore();
 
-          for (const [from, to] of boardMap.ladders.entries()) {
-            this.drawLadder(ctx, rect, from, to);
-          }
-          for (const [from, to] of boardMap.snakes.entries()) {
-            this.drawSnake(ctx, rect, from, to);
-          }
+          // ladders under snakes
+          for (const [from, to] of boardMap.ladders.entries()) this.drawLadder(ctx, rect, from, to);
+          for (const [from, to] of boardMap.snakes.entries()) this.drawSnake(ctx, rect, from, to);
         }
 
         drawLadder(ctx, rect, from, to) {
@@ -686,12 +689,13 @@
           const railW = clamp(4.5 + rnd() * 2.0, 4.5, 7.4);
 
           const wood = getComputedStyle(document.documentElement).getPropertyValue("--wood").trim() || "rgba(144, 98, 62, 0.92)";
-          const woodDark = getComputedStyle(document.documentElement).getPropertyValue("--woodDark").trim() || "rgba(58, 35, 18, 0.55)";
+          const woodDark =
+            getComputedStyle(document.documentElement).getPropertyValue("--woodDark").trim() || "rgba(58, 35, 18, 0.55)";
           const moss = getComputedStyle(document.documentElement).getPropertyValue("--moss").trim() || "rgba(33, 120, 58, 0.55)";
 
           const jitter = (t) => (rnd() - 0.5) * t;
 
-          // rails (slightly bowed old wood)
+          // rails
           for (const side of [-1, 1]) {
             const ox = nrm.x * rail * side;
             const oy = nrm.y * rail * side;
@@ -724,7 +728,7 @@
             ctx.restore();
           }
 
-          // rungs + cracks + moss
+          // rungs
           const rungCount = clamp(Math.floor(len / 48) + 2, 4, 9);
           for (let i = 1; i <= rungCount; i++) {
             const t = i / (rungCount + 1);
@@ -757,7 +761,7 @@
               ctx.stroke();
             }
 
-            // moss flecks near cracks
+            // moss
             ctx.globalAlpha = 0.85;
             ctx.fillStyle = moss;
             const mossN = Math.floor(rnd() * 4);
@@ -774,7 +778,7 @@
         }
 
         drawSnake(ctx, rect, from, to) {
-          // Black mamba-ish: tapered ribbon, gentle shine, wedge head.
+          // black mamba-ish: tapered ribbon + shine + wedge head
           const rnd = mulberry32(seedPair(from, to) ^ 0x33c9);
           const a = this.squareToPx(from, rect);
           const b = this.squareToPx(to, rect);
@@ -952,7 +956,6 @@
           const p = document.createElement("p");
           p.textContent = text;
           this.logEl.prepend(p);
-          // keep log small-ish
           while (this.logEl.childElementCount > 14) this.logEl.removeChild(this.logEl.lastElementChild);
         }
 
@@ -1011,15 +1014,16 @@
           this.players = [];
           this.piecesEl.innerHTML = "";
 
-          const shapes = shuffle([
-            { id: "p-shoe", name: "shoe" },
-            { id: "p-hat", name: "wizard hat" },
-            { id: "p-dog", name: "dog" },
-          ]).slice(0, n);
+          const pool = shuffle([
+            { sym: "piece-shoe", name: "shoe" },
+            { sym: "piece-hat", name: "wizard hat" },
+            { sym: "piece-dog", name: "dog" },
+          ]);
+          const chosen = pool.slice(0, n);
 
           for (let i = 0; i < n; i++) {
-            const s = shapes[i];
-            const el = createPiece(s.id, s.name);
+            const s = chosen[i];
+            const el = createPiece(s.sym, s.name);
             this.piecesEl.appendChild(el);
             this.players.push({ pos: 1, name: s.name, el });
           }
@@ -1113,6 +1117,30 @@
           }
         }
 
+        async applyTransitions(pl) {
+          // apply snake/ladder repeatedly, but guard against loops.
+          const seen = new Set();
+          while (true) {
+            if (seen.has(pl.pos)) break;
+            seen.add(pl.pos);
+            if (this.board.ladders.has(pl.pos)) {
+              const next = this.board.ladders.get(pl.pos);
+              this.log("Nice. Up you go.");
+              await this.sleep(180);
+              await this.walk(pl, pl.pos, next);
+              continue;
+            }
+            if (this.board.snakes.has(pl.pos)) {
+              const next = this.board.snakes.get(pl.pos);
+              this.log("Oh. That one had opinions.");
+              await this.sleep(180);
+              await this.walk(pl, pl.pos, next);
+              continue;
+            }
+            break;
+          }
+        }
+
         async takeTurn() {
           if (this.locked || this.finished) return;
           const pl = this.players[this.current];
@@ -1138,18 +1166,7 @@
 
           const start = pl.pos;
           await this.walk(pl, start, target);
-
-          if (this.board.ladders.has(pl.pos)) {
-            const next = this.board.ladders.get(pl.pos);
-            this.log("Nice. Up you go.");
-            await this.sleep(180);
-            await this.walk(pl, pl.pos, next);
-          } else if (this.board.snakes.has(pl.pos)) {
-            const next = this.board.snakes.get(pl.pos);
-            this.log("Oh. That one had opinions.");
-            await this.sleep(180);
-            await this.walk(pl, pl.pos, next);
-          }
+          await this.applyTransitions(pl);
 
           this.updateHud();
           this.placePieces(true);
@@ -1185,7 +1202,7 @@
         $("view-multi").classList.toggle("active", which === "multi");
       }
 
-      // Single-player game
+      // Single player instance
       const singleGame = new Game({
         boardEl: $("single-board"),
         canvasEl: $("single-canvas"),
@@ -1238,7 +1255,6 @@
         const h = (location.hash || "").toLowerCase();
         if (h === "#multiplayer") {
           showView("multi");
-          // show setup unless a multiplayer game was started
           if (!$("multi-stage").style.display || $("multi-stage").style.display === "none") {
             $("multi-setup").style.display = "block";
             $("multi-stage").style.display = "none";
