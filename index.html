@@ -1,1 +1,995 @@
-hello
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Snakes & Ladders</title>
+    <meta
+      name="description"
+      content="A one-page Snakes & Ladders video game. Roll the die, climb ladders, avoid snakes, and race to 100."
+    />
+    <style>
+      :root {
+        --bg0: #070a12;
+        --bg1: #0b1220;
+        --card: rgba(255, 255, 255, 0.06);
+        --card2: rgba(255, 255, 255, 0.09);
+        --stroke: rgba(255, 255, 255, 0.12);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.68);
+        --muted2: rgba(255, 255, 255, 0.55);
+        --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
+        --shadow2: 0 10px 25px rgba(0, 0, 0, 0.32);
+        --radius: 16px;
+        --radius2: 12px;
+        --accent: #7c3aed; /* violet */
+        --accent2: #22c55e; /* green */
+        --danger: #ef4444; /* red */
+        --warn: #f59e0b;
+        --good: #10b981;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.32), transparent 60%),
+          radial-gradient(1000px 700px at 90% 10%, rgba(34, 197, 94, 0.18), transparent 55%),
+          radial-gradient(900px 600px at 40% 115%, rgba(59, 130, 246, 0.12), transparent 60%),
+          linear-gradient(180deg, var(--bg0), var(--bg1));
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
+          "Apple Color Emoji", "Segoe UI Emoji";
+        line-height: 1.25;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100%;
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+      }
+
+      header {
+        padding: 28px 18px 10px;
+        max-width: 1100px;
+        margin: 0 auto;
+        width: 100%;
+      }
+
+      .titleRow {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        justify-content: space-between;
+        flex-wrap: wrap;
+      }
+
+      .brand {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .logo {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.24), transparent 60%),
+          linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(34, 197, 94, 1));
+        box-shadow: var(--shadow2);
+        border: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 22px;
+        letter-spacing: 0.2px;
+      }
+
+      .subtitle {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .topActions {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        flex-wrap: wrap;
+      }
+
+      main {
+        max-width: 1100px;
+        margin: 0 auto;
+        width: 100%;
+        padding: 14px 18px 28px;
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 18px;
+      }
+
+      @media (max-width: 980px) {
+        main {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--stroke);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+      }
+
+      .boardCard {
+        padding: 14px;
+      }
+
+      .boardTop {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 2px 2px 12px;
+      }
+
+      .boardTop .hint {
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .boardWrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        border-radius: calc(var(--radius) - 6px);
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+        border: 1px solid rgba(255, 255, 255, 0.1);
+      }
+
+      /* Grid is for numbers / squares; canvas draws snakes & ladders; token floats above */
+      .boardGrid {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        grid-template-columns: repeat(10, 1fr);
+        grid-template-rows: repeat(10, 1fr);
+      }
+
+      .cell {
+        position: relative;
+        padding: 8px;
+        border-right: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        user-select: none;
+      }
+
+      .cell:nth-child(10n) {
+        border-right: none;
+      }
+
+      .cell:nth-last-child(-n + 10) {
+        border-bottom: none;
+      }
+
+      .cell::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.07), transparent 55%);
+        opacity: 0.8;
+        pointer-events: none;
+      }
+
+      .cellNum {
+        position: absolute;
+        top: 7px;
+        left: 8px;
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.72);
+        font-variant-numeric: tabular-nums;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+      }
+
+      .cellBadges {
+        position: absolute;
+        bottom: 7px;
+        left: 8px;
+        right: 8px;
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 7px;
+        border-radius: 999px;
+        font-size: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.18);
+        color: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+      }
+
+      .badge.ladder {
+        border-color: rgba(34, 197, 94, 0.35);
+        background: rgba(34, 197, 94, 0.12);
+      }
+      .badge.snake {
+        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(239, 68, 68, 0.12);
+      }
+
+      canvas#paths {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .tokenLayer {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+      }
+
+      .token {
+        position: absolute;
+        width: 18px;
+        height: 18px;
+        border-radius: 999px;
+        transform: translate(-50%, -50%);
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35) 35%, rgba(124, 58, 237, 1) 75%);
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        box-shadow: 0 14px 30px rgba(124, 58, 237, 0.28);
+      }
+
+      .token::after {
+        content: "";
+        position: absolute;
+        inset: -6px;
+        border-radius: 999px;
+        background: radial-gradient(circle, rgba(124, 58, 237, 0.22), transparent 65%);
+        filter: blur(1px);
+      }
+
+      .sideCard {
+        padding: 14px;
+        display: grid;
+        gap: 12px;
+        align-content: start;
+      }
+
+      .panelTitle {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 2px 2px 2px;
+      }
+
+      .panelTitle h2 {
+        margin: 0;
+        font-size: 15px;
+        letter-spacing: 0.2px;
+      }
+
+      .panelTitle .small {
+        color: var(--muted2);
+        font-size: 12px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat {
+        padding: 12px;
+        border-radius: var(--radius2);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .stat .label {
+        color: var(--muted2);
+        font-size: 11px;
+      }
+      .stat .value {
+        margin-top: 6px;
+        font-size: 18px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .controls {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        font-weight: 650;
+        font-size: 13px;
+        letter-spacing: 0.2px;
+        cursor: pointer;
+        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.26);
+      }
+
+      button:active {
+        transform: translateY(0px);
+      }
+
+      button.primary {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(34, 197, 94, 0.8));
+        border-color: rgba(255, 255, 255, 0.22);
+      }
+
+      button.primary:hover {
+        background: linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(34, 197, 94, 0.92));
+      }
+
+      button.danger {
+        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(239, 68, 68, 0.35);
+      }
+
+      button:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .log {
+        padding: 12px;
+        border-radius: var(--radius2);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(0, 0, 0, 0.18);
+        min-height: 160px;
+        max-height: 260px;
+        overflow: auto;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .log p {
+        margin: 0 0 8px 0;
+      }
+
+      .log p:last-child {
+        margin-bottom: 0;
+      }
+
+      .mono {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        border-radius: 999px;
+        padding: 7px 10px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(255, 255, 255, 0.06);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 12px;
+      }
+
+      .kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        font-size: 11px;
+        padding: 1px 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(0, 0, 0, 0.25);
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      footer {
+        padding: 18px;
+        color: rgba(255, 255, 255, 0.55);
+        font-size: 12px;
+        text-align: center;
+      }
+
+      .srOnly {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        padding: 12px 14px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(0, 0, 0, 0.55);
+        color: rgba(255, 255, 255, 0.9);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(10px);
+        max-width: min(680px, calc(100vw - 26px));
+        display: none;
+        z-index: 30;
+      }
+
+      .toast.show {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <div class="titleRow">
+          <div class="brand">
+            <div class="logo" aria-hidden="true"></div>
+            <div>
+              <h1>Snakes & Ladders</h1>
+              <p class="subtitle">A one-page video game. Roll, climb, slide, and reach 100.</p>
+            </div>
+          </div>
+          <div class="topActions">
+            <span class="pill" title="Keyboard shortcuts">
+              <span class="mono">Shortcuts</span>
+              <span class="kbd">Space</span>
+              <span class="mono">roll</span>
+              <span class="kbd">R</span>
+              <span class="mono">reset</span>
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main>
+        <section class="card boardCard" aria-label="Game board">
+          <div class="boardTop">
+            <div>
+              <div class="mono" style="font-weight: 750; letter-spacing: 0.2px">Board</div>
+              <div class="hint">Start at 1. Exact roll to land on 100 wins.</div>
+            </div>
+            <div class="mono" style="color: rgba(255, 255, 255, 0.75); font-size: 12px">
+              Snakes: <span id="snakeCount">—</span> · Ladders: <span id="ladderCount">—</span>
+            </div>
+          </div>
+
+          <div class="boardWrap" id="boardWrap">
+            <canvas id="paths" width="1000" height="1000" aria-hidden="true"></canvas>
+            <div class="boardGrid" id="boardGrid" aria-hidden="true"></div>
+            <div class="tokenLayer" aria-hidden="true">
+              <div class="token" id="token"></div>
+            </div>
+          </div>
+        </section>
+
+        <aside class="card sideCard" aria-label="Game controls">
+          <div class="panelTitle">
+            <h2>Controls</h2>
+            <div class="small">Single-player</div>
+          </div>
+
+          <div class="stats" role="group" aria-label="Current status">
+            <div class="stat">
+              <div class="label">Position</div>
+              <div class="value mono"><span id="pos">1</span> / 100</div>
+            </div>
+            <div class="stat">
+              <div class="label">Last roll</div>
+              <div class="value mono"><span id="lastRoll">—</span></div>
+            </div>
+            <div class="stat">
+              <div class="label">Turns</div>
+              <div class="value mono"><span id="turns">0</span></div>
+            </div>
+            <div class="stat">
+              <div class="label">Status</div>
+              <div class="value"><span id="statusText">Ready</span></div>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button class="primary" id="rollBtn" type="button">Roll die</button>
+            <button id="newBoardBtn" type="button" title="Generate new snakes & ladders">
+              New board
+            </button>
+            <button class="danger" id="resetBtn" type="button">Reset run</button>
+          </div>
+
+          <div class="panelTitle" style="margin-top: 2px">
+            <h2>Game log</h2>
+            <div class="small">Most recent on top</div>
+          </div>
+          <div class="log" id="log" aria-live="polite"></div>
+
+          <div class="panelTitle">
+            <h2>Rules</h2>
+            <div class="small">Quick</div>
+          </div>
+          <div style="color: rgba(255, 255, 255, 0.74); font-size: 13px; padding: 0 2px 4px">
+            - Roll 1–6 and move forward.<br />
+            - Land on a <span style="color: rgba(34, 197, 94, 0.95)">ladder</span> to climb up.<br />
+            - Land on a <span style="color: rgba(239, 68, 68, 0.95)">snake</span> to slide down.<br />
+            - If a roll would pass 100, you don’t move.
+          </div>
+        </aside>
+      </main>
+
+      <footer>
+        Built as a single HTML file — open `index.html` in any browser.
+      </footer>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      // Snakes & Ladders: one-page, no dependencies.
+      // Board numbering is serpentine: bottom row 1..10 (left→right), next row 11..20 (right→left), ... top ends at 100.
+
+      const $ = (id) => document.getElementById(id);
+      const els = {
+        boardWrap: $("boardWrap"),
+        boardGrid: $("boardGrid"),
+        canvas: $("paths"),
+        token: $("token"),
+        rollBtn: $("rollBtn"),
+        resetBtn: $("resetBtn"),
+        newBoardBtn: $("newBoardBtn"),
+        pos: $("pos"),
+        lastRoll: $("lastRoll"),
+        turns: $("turns"),
+        statusText: $("statusText"),
+        log: $("log"),
+        snakeCount: $("snakeCount"),
+        ladderCount: $("ladderCount"),
+        toast: $("toast"),
+      };
+
+      const state = {
+        pos: 1,
+        lastRoll: null,
+        turns: 0,
+        locked: false,
+        finished: false,
+        // mapping: start -> end
+        snakes: new Map(),
+        ladders: new Map(),
+      };
+
+      function randInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+
+      function rollDie() {
+        return randInt(1, 6);
+      }
+
+      function coordForSquare(n) {
+        // Returns normalized center coordinates in [0..1] for given square 1..100.
+        // Row 0 is bottom row (squares 1..10).
+        const idx = n - 1;
+        const row = Math.floor(idx / 10); // 0..9 bottom→top
+        const colInRow = idx % 10;
+        const isReversed = row % 2 === 1;
+        const col = isReversed ? 9 - colInRow : colInRow;
+
+        const x = (col + 0.5) / 10;
+        const y = 1 - (row + 0.5) / 10;
+        return { x, y, row, col };
+      }
+
+      function pixelForSquare(n) {
+        const rect = els.boardWrap.getBoundingClientRect();
+        const { x, y } = coordForSquare(n);
+        return {
+          x: rect.width * x,
+          y: rect.height * y,
+        };
+      }
+
+      function setTokenPosition(n, { animate = true } = {}) {
+        const p = pixelForSquare(n);
+        els.token.style.transition = animate ? "left 220ms ease, top 220ms ease" : "none";
+        els.token.style.left = `${p.x}px`;
+        els.token.style.top = `${p.y}px`;
+      }
+
+      function clearLog() {
+        els.log.innerHTML = "";
+      }
+
+      function logLine(text) {
+        const p = document.createElement("p");
+        p.textContent = text;
+        els.log.prepend(p);
+      }
+
+      let toastTimer = null;
+      function toast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add("show");
+        if (toastTimer) window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => {
+          els.toast.classList.remove("show");
+        }, 2200);
+      }
+
+      function updateStats() {
+        els.pos.textContent = String(state.pos);
+        els.lastRoll.textContent = state.lastRoll == null ? "—" : String(state.lastRoll);
+        els.turns.textContent = String(state.turns);
+
+        if (state.finished) els.statusText.textContent = "You win!";
+        else if (state.locked) els.statusText.textContent = "Moving…";
+        else els.statusText.textContent = "Ready";
+      }
+
+      function setButtonsEnabled(enabled) {
+        els.rollBtn.disabled = !enabled;
+        els.newBoardBtn.disabled = !enabled;
+        els.resetBtn.disabled = !enabled;
+      }
+
+      function drawBoardNumbersAndBadges() {
+        els.boardGrid.innerHTML = "";
+
+        // We render cells in visual top-left → bottom-right order,
+        // but label them with the serpentine numbers.
+        for (let visualRow = 9; visualRow >= 0; visualRow--) {
+          for (let visualCol = 0; visualCol < 10; visualCol++) {
+            const cell = document.createElement("div");
+            cell.className = "cell";
+
+            // Convert visual position to square number
+            const logicalRow = 9 - visualRow; // 0 bottom .. 9 top
+            const isReversed = logicalRow % 2 === 1;
+            const colInRow = isReversed ? 9 - visualCol : visualCol;
+            const n = logicalRow * 10 + colInRow + 1;
+
+            const num = document.createElement("div");
+            num.className = "cellNum";
+            num.textContent = String(n);
+            cell.appendChild(num);
+
+            const badges = document.createElement("div");
+            badges.className = "cellBadges";
+
+            if (state.ladders.has(n)) {
+              const b = document.createElement("span");
+              b.className = "badge ladder";
+              b.textContent = `Ladder ↑${state.ladders.get(n)}`;
+              badges.appendChild(b);
+            }
+            if (state.snakes.has(n)) {
+              const b = document.createElement("span");
+              b.className = "badge snake";
+              b.textContent = `Snake ↓${state.snakes.get(n)}`;
+              badges.appendChild(b);
+            }
+            cell.appendChild(badges);
+
+            els.boardGrid.appendChild(cell);
+          }
+        }
+      }
+
+      function drawPaths() {
+        const canvas = els.canvas;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        // Match canvas internal resolution to on-screen size for crisp lines.
+        const rect = els.boardWrap.getBoundingClientRect();
+        const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        ctx.clearRect(0, 0, rect.width, rect.height);
+
+        function drawConnection(from, to, kind) {
+          const a = pixelForSquare(from);
+          const b = pixelForSquare(to);
+
+          // Control points for a smooth curve (slight sideways bend).
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const bend = Math.min(140, Math.max(60, Math.hypot(dx, dy) * 0.18));
+          const angle = Math.atan2(dy, dx) + (kind === "ladder" ? 0.55 : -0.55);
+          const c1 = { x: a.x + Math.cos(angle) * bend, y: a.y + Math.sin(angle) * bend };
+          const c2 = { x: b.x - Math.cos(angle) * bend, y: b.y - Math.sin(angle) * bend };
+
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          if (kind === "ladder") {
+            ctx.strokeStyle = "rgba(34, 197, 94, 0.72)";
+            ctx.shadowColor = "rgba(34, 197, 94, 0.25)";
+          } else {
+            ctx.strokeStyle = "rgba(239, 68, 68, 0.72)";
+            ctx.shadowColor = "rgba(239, 68, 68, 0.25)";
+          }
+          ctx.shadowBlur = 14;
+          ctx.lineWidth = 6;
+
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, b.x, b.y);
+          ctx.stroke();
+
+          // Inner highlight line
+          ctx.shadowBlur = 0;
+          ctx.lineWidth = 2.5;
+          ctx.strokeStyle = kind === "ladder" ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.42)";
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, b.x, b.y);
+          ctx.stroke();
+
+          // Endpoint dot
+          ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.restore();
+        }
+
+        for (const [from, to] of state.ladders.entries()) drawConnection(from, to, "ladder");
+        for (const [from, to] of state.snakes.entries()) drawConnection(from, to, "snake");
+      }
+
+      function hasAnyEndpointCollision(mapping, start, end) {
+        // Avoid overlapping endpoints with existing snakes/ladders.
+        for (const [a, b] of mapping.entries()) {
+          if (a === start || a === end || b === start || b === end) return true;
+        }
+        return false;
+      }
+
+      function generateBoard() {
+        // Clear
+        state.snakes.clear();
+        state.ladders.clear();
+
+        // Targets: classic-ish density but randomized.
+        const ladderTarget = 7;
+        const snakeTarget = 7;
+
+        const used = new Set([1, 100]);
+
+        function canUse(x) {
+          return x >= 2 && x <= 99 && !used.has(x);
+        }
+
+        function addPair(kind) {
+          let tries = 0;
+          while (tries++ < 2500) {
+            // Choose from/to ranges that feel fair.
+            let from, to;
+            if (kind === "ladder") {
+              from = randInt(2, 75);
+              to = randInt(from + 10, Math.min(99, from + 35));
+            } else {
+              from = randInt(15, 99);
+              to = randInt(Math.max(2, from - 35), from - 10);
+            }
+
+            if (from === to) continue;
+            if (!canUse(from) || !canUse(to)) continue;
+
+            // Prevent direct conflicts
+            if (state.ladders.has(from) || state.snakes.has(from)) continue;
+            if (state.ladders.has(to) || state.snakes.has(to)) continue;
+
+            // Avoid shared endpoints within same kind and across kinds
+            if (
+              hasAnyEndpointCollision(state.ladders, from, to) ||
+              hasAnyEndpointCollision(state.snakes, from, to)
+            )
+              continue;
+
+            // Avoid ladder start immediately being snake head etc.
+            if (state.snakes.has(to) || state.ladders.has(to)) continue;
+
+            // Avoid pairs that jump across too much of the board (keeps it fun)
+            const dist = Math.abs(to - from);
+            if (dist < 10 || dist > 40) continue;
+
+            // Accept
+            if (kind === "ladder") state.ladders.set(from, to);
+            else state.snakes.set(from, to);
+
+            used.add(from);
+            used.add(to);
+            return true;
+          }
+          return false;
+        }
+
+        while (state.ladders.size < ladderTarget) {
+          if (!addPair("ladder")) break;
+        }
+        while (state.snakes.size < snakeTarget) {
+          if (!addPair("snake")) break;
+        }
+
+        els.ladderCount.textContent = String(state.ladders.size);
+        els.snakeCount.textContent = String(state.snakes.size);
+
+        drawBoardNumbersAndBadges();
+        drawPaths();
+      }
+
+      function sleep(ms) {
+        return new Promise((r) => setTimeout(r, ms));
+      }
+
+      async function animateStepMove(from, to) {
+        const dir = to >= from ? 1 : -1;
+        const steps = Math.abs(to - from);
+        for (let i = 1; i <= steps; i++) {
+          setTokenPosition(from + dir * i, { animate: true });
+          await sleep(110);
+        }
+      }
+
+      async function doTurn() {
+        if (state.locked || state.finished) return;
+
+        state.locked = true;
+        setButtonsEnabled(false);
+
+        const roll = rollDie();
+        state.lastRoll = roll;
+        state.turns += 1;
+        updateStats();
+
+        logLine(`Turn ${state.turns}: you rolled a ${roll}.`);
+        toast(`Rolled ${roll}`);
+
+        const target = state.pos + roll;
+        if (target > 100) {
+          logLine(`Too high — you stay on ${state.pos}.`);
+          state.locked = false;
+          setButtonsEnabled(true);
+          updateStats();
+          return;
+        }
+
+        const start = state.pos;
+        await animateStepMove(start, target);
+        state.pos = target;
+        updateStats();
+
+        // Apply snakes/ladders after landing
+        if (state.ladders.has(state.pos)) {
+          const next = state.ladders.get(state.pos);
+          logLine(`Ladder! Climb from ${state.pos} to ${next}.`);
+          toast(`Ladder ↑ ${state.pos} → ${next}`);
+          await sleep(220);
+          await animateStepMove(state.pos, next);
+          state.pos = next;
+          updateStats();
+        } else if (state.snakes.has(state.pos)) {
+          const next = state.snakes.get(state.pos);
+          logLine(`Snake! Slide from ${state.pos} to ${next}.`);
+          toast(`Snake ↓ ${state.pos} → ${next}`);
+          await sleep(220);
+          await animateStepMove(state.pos, next);
+          state.pos = next;
+          updateStats();
+        }
+
+        if (state.pos === 100) {
+          state.finished = true;
+          logLine(`🎉 You reached 100 in ${state.turns} turns. You win!`);
+          toast(`You win in ${state.turns} turns!`);
+        }
+
+        state.locked = false;
+        setButtonsEnabled(true);
+        updateStats();
+      }
+
+      function resetRun({ keepBoard = true } = {}) {
+        state.pos = 1;
+        state.lastRoll = null;
+        state.turns = 0;
+        state.locked = false;
+        state.finished = false;
+
+        clearLog();
+        logLine("New run started. Roll to begin!");
+
+        if (!keepBoard) generateBoard();
+
+        updateStats();
+        setTokenPosition(1, { animate: false });
+      }
+
+      function ensureLayoutAndRedraw() {
+        // Token and canvas depend on boardWrap size.
+        setTokenPosition(state.pos, { animate: false });
+        drawPaths();
+      }
+
+      function init() {
+        generateBoard();
+        resetRun({ keepBoard: true });
+
+        els.rollBtn.addEventListener("click", doTurn);
+        els.resetBtn.addEventListener("click", () => resetRun({ keepBoard: true }));
+        els.newBoardBtn.addEventListener("click", () => resetRun({ keepBoard: false }));
+
+        window.addEventListener("resize", () => {
+          // Debounce-ish via rAF
+          window.requestAnimationFrame(ensureLayoutAndRedraw);
+        });
+
+        window.addEventListener("keydown", (e) => {
+          if (e.key === " " || e.key === "Spacebar") {
+            e.preventDefault();
+            doTurn();
+            return;
+          }
+          if (e.key === "r" || e.key === "R") {
+            e.preventDefault();
+            resetRun({ keepBoard: true });
+          }
+        });
+
+        setButtonsEnabled(true);
+      }
+
+      init();
+    </script>
+  </body>
+</html>
