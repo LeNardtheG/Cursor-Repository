@@ -87,20 +87,18 @@
       }
 
       .stage {
-        display: flex;
+        display: grid;
+        grid-template-columns: 4fr 1fr; /* ~80% board, ~20% controls */
         gap: 14px;
         align-items: flex-start;
       }
 
-      /* Board dominates (>=80% width). */
       .boardArea {
-        flex: 1 1 auto;
         min-width: 0;
       }
 
       .quietSide {
-        width: clamp(160px, 18vw, 240px);
-        flex: 0 0 auto;
+        min-width: 0;
         color: rgba(240, 236, 229, 0.82);
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
         font-size: 12px;
@@ -111,7 +109,7 @@
       /* On small screens, stack controls under board but keep them visually quieter. */
       @media (max-width: 880px) {
         .stage {
-          flex-direction: column;
+          grid-template-columns: 1fr;
         }
         .quietSide {
           width: 100%;
