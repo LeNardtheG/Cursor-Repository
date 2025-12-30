@@ -1,23 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>LeNard’s board game</title>
-    <meta name="description" content="LeNard’s board game — snakes, ladders, and a little bad luck." />
     <style>
       :root {
-        --outside: #0c0f12;
-        --outside2: #0a0b0d;
-        --ink: rgba(240, 236, 229, 0.9);
-        --ink2: rgba(240, 236, 229, 0.66);
-        --ink3: rgba(240, 236, 229, 0.46);
-        --deep-red: #5b0f14;
-        --deep-red2: #4a0d11;
-        --grid: rgba(20, 10, 10, 0.35);
-        --grid2: rgba(255, 255, 255, 0.12);
-        --paperSpeck: rgba(0, 0, 0, 0.08);
+        --outside: #0b0d10;
+        --outside2: #07080a;
+        --board: #5b0f14; /* deep red */
+        --board2: #4a0d11;
+        --ink: rgba(244, 241, 234, 0.9);
+        --ink2: rgba(244, 241, 234, 0.7);
+        --ink3: rgba(244, 241, 234, 0.5);
+        --grid: rgba(0, 0, 0, 0.25);
         --shadow: rgba(0, 0, 0, 0.55);
+        --wood: rgba(144, 98, 62, 0.92);
+        --woodDark: rgba(58, 35, 18, 0.55);
+        --moss: rgba(33, 120, 58, 0.55);
       }
 
       * {
@@ -32,11 +32,10 @@
       body {
         margin: 0;
         background:
-          radial-gradient(1200px 600px at 25% 10%, rgba(100, 120, 140, 0.08), transparent 55%),
-          radial-gradient(900px 520px at 85% 15%, rgba(80, 90, 70, 0.06), transparent 55%),
+          radial-gradient(1200px 650px at 20% 10%, rgba(120, 140, 160, 0.08), transparent 55%),
+          radial-gradient(1000px 650px at 85% 15%, rgba(90, 100, 80, 0.06), transparent 55%),
           linear-gradient(180deg, var(--outside), var(--outside2));
         color: var(--ink);
-        font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
       }
 
       body::before {
@@ -44,27 +43,29 @@
         position: fixed;
         inset: 0;
         pointer-events: none;
+        opacity: 0.5;
         background:
-          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.035), transparent 55%),
-          radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.03), transparent 60%),
+          radial-gradient(circle at 25% 30%, rgba(255, 255, 255, 0.03), transparent 55%),
+          radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.02), transparent 60%),
           repeating-linear-gradient(
             112deg,
             rgba(255, 255, 255, 0.02),
             rgba(255, 255, 255, 0.02) 1px,
             transparent 1px,
-            transparent 8px
+            transparent 9px
           );
-        opacity: 0.5;
       }
 
       a {
         color: inherit;
-        text-decoration: none;
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-underline-offset: 4px;
       }
 
       .view {
-        min-height: 100%;
         display: none;
+        min-height: 100%;
       }
 
       .view.active {
@@ -72,71 +73,59 @@
       }
 
       .shell {
-        width: min(1400px, calc(100vw - 24px));
+        width: min(1480px, calc(100vw - 24px));
         margin: 0 auto;
         padding: 14px 0 18px;
       }
 
       .title {
-        text-align: center;
+        font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
         font-size: 20px;
         font-weight: 500;
         letter-spacing: 0.2px;
+        text-align: center;
         margin: 6px 0 14px;
-        color: rgba(240, 236, 229, 0.86);
+        color: rgba(244, 241, 234, 0.86);
       }
 
       .stage {
         display: grid;
-        grid-template-columns: 4fr 1fr; /* ~80% board, ~20% controls */
+        grid-template-columns: 4fr 1fr; /* ~80% / ~20% */
         gap: 14px;
-        align-items: flex-start;
+        align-items: start;
+      }
+
+      @media (max-width: 900px) {
+        .stage {
+          grid-template-columns: 1fr;
+        }
       }
 
       .boardArea {
         min-width: 0;
       }
 
-      .quietSide {
-        min-width: 0;
-        color: rgba(240, 236, 229, 0.82);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        font-size: 12px;
-        line-height: 1.2;
-        padding-top: 8px;
-      }
-
-      /* On small screens, stack controls under board but keep them visually quieter. */
-      @media (max-width: 880px) {
-        .stage {
-          grid-template-columns: 1fr;
-        }
-        .quietSide {
-          width: 100%;
-          max-width: 520px;
-        }
-      }
-
       .board {
         position: relative;
         width: 100%;
         aspect-ratio: 1 / 1;
-        background: var(--deep-red);
+        background: var(--board);
         border-radius: 16px;
         overflow: hidden;
         box-shadow:
           0 22px 55px var(--shadow),
           inset 0 0 0 2px rgba(0, 0, 0, 0.22),
-          inset 0 0 0 6px rgba(255, 255, 255, 0.05);
+          inset 0 0 0 7px rgba(255, 255, 255, 0.05);
         transform: rotate(-0.35deg);
       }
 
-      /* Cardboard / print imperfections */
+      /* cardboard / print imperfections */
       .board::before {
         content: "";
         position: absolute;
         inset: 0;
         pointer-events: none;
+        opacity: 0.92;
         background:
           radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.06), transparent 55%),
           radial-gradient(circle at 78% 68%, rgba(0, 0, 0, 0.16), transparent 60%),
@@ -155,7 +144,6 @@
             transparent 9px
           );
         mix-blend-mode: overlay;
-        opacity: 0.9;
       }
 
       .board::after {
@@ -163,12 +151,11 @@
         position: absolute;
         inset: -1px;
         pointer-events: none;
-        background:
-          radial-gradient(circle at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.22) 95%);
         opacity: 0.9;
+        background: radial-gradient(circle at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.22) 95%);
       }
 
-      .boardGrid {
+      .grid {
         position: absolute;
         inset: 14px;
         border-radius: 12px;
@@ -176,7 +163,7 @@
         display: grid;
         grid-template-columns: repeat(10, 1fr);
         grid-template-rows: repeat(10, 1fr);
-        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.22);
       }
 
       .cell {
@@ -184,13 +171,14 @@
         border-right: 1px solid rgba(0, 0, 0, 0.22);
         border-bottom: 1px solid rgba(0, 0, 0, 0.22);
         background:
-          radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.06), transparent 60%),
-          radial-gradient(circle at 70% 75%, rgba(0, 0, 0, 0.1), transparent 62%);
+          radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.06), transparent 62%),
+          radial-gradient(circle at 70% 78%, rgba(0, 0, 0, 0.1), transparent 65%);
       }
 
       .cell:nth-child(10n) {
         border-right: none;
       }
+
       .cell:nth-last-child(-n + 10) {
         border-bottom: none;
       }
@@ -200,14 +188,13 @@
         position: absolute;
         inset: 0;
         pointer-events: none;
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.04), transparent 55%),
-          radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
         opacity: 0.65;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.035), transparent 55%),
+          radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
       }
 
-      /* Very small numbers, barely there */
-      .cellNum {
+      .num {
         position: absolute;
         top: 6px;
         left: 7px;
@@ -216,8 +203,8 @@
         color: rgba(255, 255, 255, 0.36);
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
           monospace;
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
         user-select: none;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
       }
 
       canvas.paths {
@@ -251,39 +238,35 @@
         display: block;
       }
 
-      .pieceLabel {
-        position: absolute;
-        left: 50%;
-        top: 34px;
-        transform: translateX(-50%);
-        font-size: 10px;
-        color: rgba(240, 236, 229, 0.6);
+      .side {
+        min-width: 0;
+        padding-top: 8px;
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        white-space: nowrap;
-        display: none;
+        font-size: 12px;
+        color: rgba(244, 241, 234, 0.82);
       }
 
-      .quietSide .row {
+      .row {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
         padding: 6px 0;
-        border-bottom: 1px dashed rgba(240, 236, 229, 0.14);
+        border-bottom: 1px dashed rgba(244, 241, 234, 0.14);
       }
 
-      .quietSide .row:last-child {
+      .row:last-child {
         border-bottom: none;
       }
 
-      .quietSide .label {
-        color: rgba(240, 236, 229, 0.6);
+      .label {
+        color: rgba(244, 241, 234, 0.62);
       }
 
-      .quietSide .value {
+      .value {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
           monospace;
-        color: rgba(240, 236, 229, 0.82);
+        color: rgba(244, 241, 234, 0.86);
       }
 
       .controls {
@@ -294,20 +277,20 @@
 
       button {
         appearance: none;
-        background: rgba(240, 236, 229, 0.06);
-        border: 1px solid rgba(240, 236, 229, 0.16);
-        color: rgba(240, 236, 229, 0.86);
+        background: rgba(244, 241, 234, 0.06);
+        border: 1px solid rgba(244, 241, 234, 0.16);
+        color: rgba(244, 241, 234, 0.88);
         padding: 10px 10px;
         border-radius: 12px;
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
         font-size: 12px;
         letter-spacing: 0.2px;
         cursor: pointer;
-        transition: background 120ms ease, transform 120ms ease;
+        transition: transform 120ms ease, background 120ms ease;
       }
 
       button:hover {
-        background: rgba(240, 236, 229, 0.1);
+        background: rgba(244, 241, 234, 0.1);
         transform: translateY(-1px);
       }
 
@@ -321,25 +304,12 @@
         transform: none;
       }
 
-      .minorLink {
-        display: inline-block;
-        margin-top: 10px;
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        font-size: 12px;
-        color: rgba(240, 236, 229, 0.62);
-        text-decoration: underline;
-        text-decoration-style: dotted;
-        text-underline-offset: 4px;
-      }
-
       .log {
         margin-top: 12px;
-        padding: 8px 0 0;
-        color: rgba(240, 236, 229, 0.7);
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        font-size: 12px;
-        max-height: 72px; /* ~1/4 of the old log height */
+        padding-top: 8px;
+        max-height: 72px;
         overflow: auto;
+        color: rgba(244, 241, 234, 0.7);
       }
 
       .log p {
@@ -350,11 +320,11 @@
         margin: 12px auto 0;
         width: min(520px, calc(100vw - 24px));
         padding: 16px 14px;
-        border: 1px solid rgba(240, 236, 229, 0.14);
+        border: 1px solid rgba(244, 241, 234, 0.14);
         border-radius: 16px;
-        background: rgba(240, 236, 229, 0.04);
+        background: rgba(244, 241, 234, 0.04);
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
-        color: rgba(240, 236, 229, 0.86);
+        color: rgba(244, 241, 234, 0.86);
       }
 
       .setup h2 {
@@ -370,13 +340,9 @@
         align-items: center;
       }
 
-      .choiceBtn {
-        padding: 10px 12px;
-      }
-
       .note {
         margin-top: 10px;
-        color: rgba(240, 236, 229, 0.62);
+        color: rgba(244, 241, 234, 0.62);
         font-size: 12px;
         line-height: 1.25;
       }
@@ -395,22 +361,18 @@
     </style>
   </head>
   <body>
-    <!-- Hidden SVG defs for metallic pieces -->
+    <!-- piece art (metallic) -->
     <svg class="srOnly" aria-hidden="true">
       <defs>
         <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#fafafa" stop-opacity="0.98" />
-          <stop offset="0.22" stop-color="#d9d9d9" stop-opacity="0.98" />
-          <stop offset="0.5" stop-color="#bdbdbd" stop-opacity="0.98" />
-          <stop offset="0.78" stop-color="#f3f3f3" stop-opacity="0.98" />
+          <stop offset="0" stop-color="#fbfbfb" stop-opacity="0.98" />
+          <stop offset="0.23" stop-color="#d7d7d7" stop-opacity="0.98" />
+          <stop offset="0.52" stop-color="#bdbdbd" stop-opacity="0.98" />
+          <stop offset="0.78" stop-color="#f2f2f2" stop-opacity="0.98" />
           <stop offset="1" stop-color="#9f9f9f" stop-opacity="0.98" />
         </linearGradient>
-        <linearGradient id="silverEdge" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="rgba(0,0,0,0.22)" />
-          <stop offset="1" stop-color="rgba(255,255,255,0.22)" />
-        </linearGradient>
         <filter id="metalRough" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="7" />
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="11" />
           <feColorMatrix type="matrix" values="
             1 0 0 0 0
             0 1 0 0 0
@@ -420,7 +382,7 @@
           <feBlend mode="overlay" in2="SourceGraphic" />
         </filter>
 
-        <symbol id="piece-shoe" viewBox="0 0 64 64">
+        <symbol id="p-shoe" viewBox="0 0 64 64">
           <path
             d="M10 40c6 0 10-6 14-14 3-7 7-10 12-10 4 0 6 3 8 6 2 4 4 7 9 9 4 2 7 4 7 8 0 6-6 9-16 9H18c-8 0-12-3-12-8 0-3 2-6 4-6z"
             fill="url(#silverGrad)"
@@ -437,7 +399,7 @@
           />
         </symbol>
 
-        <symbol id="piece-hat" viewBox="0 0 64 64">
+        <symbol id="p-hat" viewBox="0 0 64 64">
           <path
             d="M30 10c10 10 16 22 16 30 0 7-6 10-14 10-7 0-14-3-14-10 0-9 4-18 12-30z"
             fill="url(#silverGrad)"
@@ -454,7 +416,7 @@
           />
         </symbol>
 
-        <symbol id="piece-dog" viewBox="0 0 64 64">
+        <symbol id="p-dog" viewBox="0 0 64 64">
           <path
             d="M18 44c0-10 7-18 16-18 7 0 12 4 14 9 3 0 6 2 6 6 0 5-4 8-9 8-1 5-6 9-13 9-9 0-14-6-14-14z"
             fill="url(#silverGrad)"
@@ -474,94 +436,94 @@
       </defs>
     </svg>
 
-    <!-- SINGLE PLAYER VIEW -->
-    <section class="view active" id="singleView" aria-label="Single player">
+    <section class="view active" id="view-single" aria-label="Single player">
       <div class="shell">
         <div class="title">LeNard’s board game</div>
         <div class="stage">
           <div class="boardArea">
-            <div class="board" id="singleBoard">
-              <canvas class="paths" id="singleCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
-              <div class="boardGrid" id="singleGrid" aria-hidden="true"></div>
-              <div class="pieces" id="singlePieces" aria-hidden="true"></div>
+            <div class="board" id="single-board">
+              <canvas class="paths" id="single-canvas" aria-hidden="true"></canvas>
+              <div class="grid" id="single-grid" aria-hidden="true"></div>
+              <div class="pieces" id="single-pieces" aria-hidden="true"></div>
             </div>
           </div>
-          <aside class="quietSide" aria-label="Controls">
+          <aside class="side" aria-label="Controls">
             <div class="row">
               <div class="label">Turn</div>
-              <div class="value" id="singleTurn">1</div>
+              <div class="value" id="single-turn">1</div>
             </div>
             <div class="row">
               <div class="label">On</div>
-              <div class="value" id="singlePos">1</div>
+              <div class="value" id="single-pos">1</div>
             </div>
             <div class="row">
               <div class="label">Last</div>
-              <div class="value" id="singleLast">—</div>
+              <div class="value" id="single-last">—</div>
             </div>
             <div class="row">
               <div class="label">Piece</div>
-              <div class="value" id="singlePieceName">—</div>
+              <div class="value" id="single-piece">—</div>
             </div>
             <div class="controls">
-              <button id="singleRoll" type="button">Roll</button>
-              <button id="singleNewBoard" type="button">New board</button>
-              <button id="singleReset" type="button">Reset</button>
+              <button id="single-roll" type="button">Roll</button>
+              <button id="single-new" type="button">New board</button>
+              <button id="single-reset" type="button">Reset</button>
             </div>
-            <a class="minorLink" href="#multiplayer" id="toMulti">Multiplayer</a>
-            <div class="log" id="singleLog" aria-live="polite"></div>
+            <div style="margin-top: 10px; color: rgba(244, 241, 234, 0.62)">
+              <a href="#multiplayer">Multiplayer</a>
+            </div>
+            <div class="log" id="single-log" aria-live="polite"></div>
           </aside>
         </div>
       </div>
     </section>
 
-    <!-- MULTIPLAYER VIEW -->
-    <section class="view" id="multiView" aria-label="Multiplayer">
+    <section class="view" id="view-multi" aria-label="Multiplayer">
       <div class="shell">
         <div class="title">LeNard’s board game</div>
 
-        <div class="setup" id="multiSetup">
+        <div class="setup" id="multi-setup">
           <h2>Multiplayer</h2>
           <div class="choices" role="group" aria-label="Choose number of players">
-            <button class="choiceBtn" id="choose2" type="button">2 players</button>
-            <button class="choiceBtn" id="choose3" type="button">3 players</button>
+            <button id="multi-2" type="button">2 players</button>
+            <button id="multi-3" type="button">3 players</button>
           </div>
           <div class="note">
-            Each player gets a little silver thing. Try not to get swallowed immediately.
-            <div style="margin-top: 8px">
-              <a class="minorLink" href="#single" id="toSingle">Back to single-player</a>
-            </div>
+            Each player gets a little silver thing.
+            <div style="margin-top: 8px"><a href="#single">Back to single-player</a></div>
           </div>
         </div>
 
-        <div class="stage" id="multiStage" style="display: none">
+        <div class="stage" id="multi-stage" style="display: none">
           <div class="boardArea">
-            <div class="board" id="multiBoard">
-              <canvas class="paths" id="multiCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
-              <div class="boardGrid" id="multiGrid" aria-hidden="true"></div>
-              <div class="pieces" id="multiPieces" aria-hidden="true"></div>
+            <div class="board" id="multi-board">
+              <canvas class="paths" id="multi-canvas" aria-hidden="true"></canvas>
+              <div class="grid" id="multi-grid" aria-hidden="true"></div>
+              <div class="pieces" id="multi-pieces" aria-hidden="true"></div>
             </div>
           </div>
-          <aside class="quietSide" aria-label="Controls">
+          <aside class="side" aria-label="Controls">
             <div class="row">
               <div class="label">Player</div>
-              <div class="value" id="multiPlayer">1</div>
+              <div class="value" id="multi-player">1</div>
             </div>
             <div class="row">
               <div class="label">On</div>
-              <div class="value" id="multiPos">1</div>
+              <div class="value" id="multi-pos">1</div>
             </div>
             <div class="row">
               <div class="label">Last</div>
-              <div class="value" id="multiLast">—</div>
+              <div class="value" id="multi-last">—</div>
             </div>
             <div class="controls">
-              <button id="multiRoll" type="button">Roll</button>
-              <button id="multiNewBoard" type="button">New board</button>
-              <button id="multiReset" type="button">Reset</button>
+              <button id="multi-roll" type="button">Roll</button>
+              <button id="multi-new" type="button">New board</button>
+              <button id="multi-reset" type="button">Reset</button>
             </div>
-            <a class="minorLink" href="#single">Single-player</a>
-            <div class="log" id="multiLog" aria-live="polite"></div>
+            <div style="margin-top: 10px; color: rgba(244, 241, 234, 0.62)">
+              <a href="#single">Single-player</a>
+            </div>
+            <div class="log" id="multi-log" aria-live="polite"></div>
           </aside>
         </div>
       </div>
@@ -570,99 +532,107 @@
     <script>
       const $ = (id) => document.getElementById(id);
 
-      function clamp(n, a, b) {
-        return Math.max(a, Math.min(b, n));
-      }
-
       function randInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
 
-      function rollDie() {
-        return randInt(1, 6);
+      function clamp(n, a, b) {
+        return Math.max(a, Math.min(b, n));
+      }
+
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
       }
 
       function mulberry32(seed) {
-        let a = seed >>> 0;
+        let t = seed >>> 0;
         return function () {
-          a |= 0;
-          a = (a + 0x6d2b79f5) | 0;
-          let t = Math.imul(a ^ (a >>> 15), 1 | a);
-          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+          t += 0x6d2b79f5;
+          let r = Math.imul(t ^ (t >>> 15), 1 | t);
+          r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+          return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
         };
       }
 
-      function hashPair(a, b) {
-        // Simple deterministic seed for (a,b)
-        return ((a * 73856093) ^ (b * 19349663)) >>> 0;
+      function seedPair(a, b) {
+        return ((a * 73856093) ^ (b * 19349663) ^ 0x9e3779b9) >>> 0;
       }
 
       function coordForSquare(n) {
-        // Serpentine numbering: bottom row 1..10 L->R, next row 11..20 R->L, ...
+        // Serpentine numbering: bottom row 1..10 left->right, next row right->left...
         const idx = n - 1;
         const row = Math.floor(idx / 10); // 0..9 bottom->top
         const colInRow = idx % 10;
-        const reversed = row % 2 === 1;
-        const col = reversed ? 9 - colInRow : colInRow;
-        const x = (col + 0.5) / 10;
-        const y = 1 - (row + 0.5) / 10;
-        return { x, y };
+        const rev = row % 2 === 1;
+        const col = rev ? 9 - colInRow : colInRow;
+        return { x: (col + 0.5) / 10, y: 1 - (row + 0.5) / 10 };
       }
 
-      function pickUnique(items, count) {
-        const arr = items.slice();
-        for (let i = arr.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [arr[i], arr[j]] = [arr[j], arr[i]];
+      function buildGrid(gridEl) {
+        gridEl.innerHTML = "";
+        for (let visualRow = 9; visualRow >= 0; visualRow--) {
+          for (let visualCol = 0; visualCol < 10; visualCol++) {
+            const logicalRow = 9 - visualRow;
+            const rev = logicalRow % 2 === 1;
+            const colInRow = rev ? 9 - visualCol : visualCol;
+            const n = logicalRow * 10 + colInRow + 1;
+
+            const cell = document.createElement("div");
+            cell.className = "cell";
+            const num = document.createElement("div");
+            num.className = "num";
+            num.textContent = String(n);
+            cell.appendChild(num);
+            gridEl.appendChild(cell);
+          }
         }
-        return arr.slice(0, count);
       }
 
-      function createPieceEl(shape, label) {
+      function offsetsForCount(count, radius) {
+        if (count <= 1) return [{ x: 0, y: 0, s: 1 }];
+        if (count === 2) {
+          return [
+            { x: -radius * 0.75, y: 0, s: 0.88 },
+            { x: radius * 0.75, y: radius * 0.1, s: 0.88 },
+          ];
+        }
+        return [
+          { x: -radius * 0.65, y: radius * 0.35, s: 0.82 },
+          { x: radius * 0.7, y: radius * 0.25, s: 0.82 },
+          { x: radius * 0.05, y: -radius * 0.65, s: 0.82 },
+        ];
+      }
+
+      function createPiece(shape, label) {
         const el = document.createElement("div");
         el.className = "piece";
-        el.dataset.shape = shape;
-        el.setAttribute("aria-hidden", "true");
-        el.innerHTML = `
-          <svg viewBox="0 0 64 64" role="img" aria-label="${label}">
-            <use href="#piece-${shape}"></use>
-          </svg>
-          <div class="pieceLabel">${label}</div>
-        `;
+        el.innerHTML = `<svg viewBox="0 0 64 64" role="img" aria-label="${label}"><use href="#${shape}"></use></svg>`;
         return el;
       }
 
-      function layoutOffsets(count, radius) {
-        // Non-overlapping-ish offsets around a point.
-        // Intentionally slightly imperfect (tiny jitter).
-        if (count <= 1) return [{ x: 0, y: 0, s: 1 }];
-        const base =
-          count === 2
-            ? [
-                { x: -radius * 0.7, y: 0, s: 0.88 },
-                { x: radius * 0.7, y: 0.1 * radius, s: 0.88 },
-              ]
-            : [
-                { x: -radius * 0.65, y: radius * 0.35, s: 0.82 },
-                { x: radius * 0.7, y: radius * 0.25, s: 0.82 },
-                { x: 0.05 * radius, y: -radius * 0.65, s: 0.82 },
-              ];
-        return base.map((p) => ({
-          x: p.x + (Math.random() - 0.5) * 1.2,
-          y: p.y + (Math.random() - 0.5) * 1.2,
-          s: p.s,
-        }));
-      }
-
-      class BoardArt {
+      class BoardRenderer {
         constructor(boardEl, canvasEl) {
           this.boardEl = boardEl;
           this.canvasEl = canvasEl;
         }
 
-        squareToPixel(n) {
+        resizeCanvas() {
           const rect = this.boardEl.getBoundingClientRect();
+          const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+          this.canvasEl.width = Math.floor(rect.width * dpr);
+          this.canvasEl.height = Math.floor(rect.height * dpr);
+          const ctx = this.canvasEl.getContext("2d");
+          if (!ctx) return null;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          return { ctx, rect };
+        }
+
+        squareToPx(n, rect) {
           const inset = 14;
           const inner = {
             left: inset,
@@ -674,138 +644,105 @@
           return { x: inner.left + inner.w * x, y: inner.top + inner.h * y };
         }
 
-        resizeCanvas() {
-          const rect = this.boardEl.getBoundingClientRect();
-          const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-          this.canvasEl.width = Math.floor(rect.width * dpr);
-          this.canvasEl.height = Math.floor(rect.height * dpr);
-          const ctx = this.canvasEl.getContext("2d");
-          if (!ctx) return null;
-          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-          return ctx;
-        }
-
         draw(boardMap) {
-          const ctx = this.resizeCanvas();
-          if (!ctx) return;
-          const rect = this.boardEl.getBoundingClientRect();
+          const res = this.resizeCanvas();
+          if (!res) return;
+          const { ctx, rect } = res;
           ctx.clearRect(0, 0, rect.width, rect.height);
 
-          // Slight ink smudge layer
+          // gentle ink smudges (imperfection)
           ctx.save();
           ctx.globalAlpha = 0.12;
           ctx.fillStyle = "rgba(0,0,0,0.22)";
-          for (let i = 0; i < 16; i++) {
+          for (let i = 0; i < 14; i++) {
             const x = Math.random() * rect.width;
             const y = Math.random() * rect.height;
-            const r = 18 + Math.random() * 26;
+            const r = 16 + Math.random() * 28;
             ctx.beginPath();
             ctx.ellipse(x, y, r * 1.2, r, (Math.random() - 0.5) * 0.6, 0, Math.PI * 2);
             ctx.fill();
           }
           ctx.restore();
 
-          // Ladders first (so snakes can overlay a little)
           for (const [from, to] of boardMap.ladders.entries()) {
-            this.drawLadder(ctx, from, to, hashPair(from, to) ^ 0x8f2a);
+            this.drawLadder(ctx, rect, from, to);
           }
           for (const [from, to] of boardMap.snakes.entries()) {
-            this.drawSnake(ctx, from, to, hashPair(from, to) ^ 0x33c9);
+            this.drawSnake(ctx, rect, from, to);
           }
         }
 
-        drawLadder(ctx, from, to, seed) {
-          const rnd = mulberry32(seed);
-          const a = this.squareToPixel(from);
-          const b = this.squareToPixel(to);
-
+        drawLadder(ctx, rect, from, to) {
+          const rnd = mulberry32(seedPair(from, to) ^ 0x8f2a);
+          const a = this.squareToPx(from, rect);
+          const b = this.squareToPx(to, rect);
           const dx = b.x - a.x;
           const dy = b.y - a.y;
-          const len = Math.hypot(dx, dy);
-          const ux = dx / (len || 1);
-          const uy = dy / (len || 1);
-          const nx = -uy;
-          const ny = ux;
+          const len = Math.hypot(dx, dy) || 1;
+          const dir = { x: dx / len, y: dy / len };
+          const nrm = { x: -dir.y, y: dir.x };
 
-          // Rails spacing
-          const rail = clamp(10 + rnd() * 5, 10, 16);
-          const railW = clamp(4.6 + rnd() * 1.6, 4.6, 7.2);
+          const rail = clamp(10 + rnd() * 6, 10, 16);
+          const railW = clamp(4.5 + rnd() * 2.0, 4.5, 7.4);
 
-          const woodBase = "rgba(136, 92, 58, 0.92)";
-          const woodDark = "rgba(70, 42, 22, 0.55)";
-          const woodHi = "rgba(250, 240, 220, 0.18)";
+          const wood = getComputedStyle(document.documentElement).getPropertyValue("--wood").trim() || "rgba(144, 98, 62, 0.92)";
+          const woodDark = getComputedStyle(document.documentElement).getPropertyValue("--woodDark").trim() || "rgba(58, 35, 18, 0.55)";
+          const moss = getComputedStyle(document.documentElement).getPropertyValue("--moss").trim() || "rgba(33, 120, 58, 0.55)";
 
-          function jitter(t) {
-            return (rnd() - 0.5) * t;
-          }
+          const jitter = (t) => (rnd() - 0.5) * t;
 
-          // Rails
+          // rails (slightly bowed old wood)
           for (const side of [-1, 1]) {
-            const ox = nx * rail * side;
-            const oy = ny * rail * side;
+            const ox = nrm.x * rail * side;
+            const oy = nrm.y * rail * side;
+            const mid = {
+              x: (a.x + b.x) / 2 + nrm.x * (rnd() - 0.5) * 18,
+              y: (a.y + b.y) / 2 + nrm.y * (rnd() - 0.5) * 18,
+            };
+
             ctx.save();
             ctx.lineCap = "round";
             ctx.lineJoin = "round";
             ctx.shadowColor = "rgba(0,0,0,0.25)";
             ctx.shadowBlur = 10;
             ctx.lineWidth = railW;
-            ctx.strokeStyle = woodBase;
+            ctx.strokeStyle = wood;
             ctx.beginPath();
             ctx.moveTo(a.x + ox + jitter(0.8), a.y + oy + jitter(0.8));
-
-            // A slightly bowed rail (old wood)
-            const mid = {
-              x: (a.x + b.x) / 2 + nx * (rnd() - 0.5) * 18,
-              y: (a.y + b.y) / 2 + ny * (rnd() - 0.5) * 18,
-            };
             ctx.quadraticCurveTo(mid.x + ox, mid.y + oy, b.x + ox + jitter(0.8), b.y + oy + jitter(0.8));
             ctx.stroke();
 
-            // Dark grain line
+            // grain line
             ctx.shadowBlur = 0;
-            ctx.lineWidth = 1.3;
             ctx.globalAlpha = 0.55;
             ctx.strokeStyle = woodDark;
+            ctx.lineWidth = 1.2;
             ctx.beginPath();
             ctx.moveTo(a.x + ox, a.y + oy);
             ctx.quadraticCurveTo(mid.x + ox, mid.y + oy, b.x + ox, b.y + oy);
             ctx.stroke();
-
-            // Highlight edge
-            ctx.globalAlpha = 0.7;
-            ctx.strokeStyle = woodHi;
-            ctx.lineWidth = 1.1;
-            ctx.beginPath();
-            ctx.moveTo(a.x + ox + nx * 1.2, a.y + oy + ny * 1.2);
-            ctx.quadraticCurveTo(
-              mid.x + ox + nx * 1.2,
-              mid.y + oy + ny * 1.2,
-              b.x + ox + nx * 1.2,
-              b.y + oy + ny * 1.2,
-            );
-            ctx.stroke();
             ctx.restore();
           }
 
-          // Rungs
+          // rungs + cracks + moss
           const rungCount = clamp(Math.floor(len / 48) + 2, 4, 9);
           for (let i = 1; i <= rungCount; i++) {
             const t = i / (rungCount + 1);
-            const px = a.x + dx * t + (rnd() - 0.5) * 2.2;
-            const py = a.y + dy * t + (rnd() - 0.5) * 2.2;
+            const px = a.x + dx * t + jitter(2.2);
+            const py = a.y + dy * t + jitter(2.2);
 
             ctx.save();
             ctx.lineCap = "round";
             ctx.shadowColor = "rgba(0,0,0,0.24)";
             ctx.shadowBlur = 8;
             ctx.lineWidth = clamp(3.8 + rnd() * 1.2, 3.8, 5.4);
-            ctx.strokeStyle = woodBase;
+            ctx.strokeStyle = wood;
             ctx.beginPath();
-            ctx.moveTo(px - nx * rail + jitter(0.9), py - ny * rail + jitter(0.9));
-            ctx.lineTo(px + nx * rail + jitter(0.9), py + ny * rail + jitter(0.9));
+            ctx.moveTo(px - nrm.x * rail + jitter(0.9), py - nrm.y * rail + jitter(0.9));
+            ctx.lineTo(px + nrm.x * rail + jitter(0.9), py + nrm.y * rail + jitter(0.9));
             ctx.stroke();
 
-            // Little cracks (old, slightly broken)
+            // cracks
             ctx.shadowBlur = 0;
             ctx.globalAlpha = 0.6;
             ctx.strokeStyle = "rgba(40, 24, 12, 0.45)";
@@ -820,55 +757,53 @@
               ctx.stroke();
             }
 
-            // Moss flecks near cracks
-            ctx.globalAlpha = 0.8;
-            ctx.fillStyle = "rgba(34, 110, 52, 0.55)";
-            const moss = Math.floor(rnd() * 4);
-            for (let m = 0; m < moss; m++) {
+            // moss flecks near cracks
+            ctx.globalAlpha = 0.85;
+            ctx.fillStyle = moss;
+            const mossN = Math.floor(rnd() * 4);
+            for (let m = 0; m < mossN; m++) {
               const mx = px + (rnd() - 0.5) * 18;
               const my = py + (rnd() - 0.5) * 10;
               ctx.beginPath();
               ctx.arc(mx, my, 1 + rnd() * 2.2, 0, Math.PI * 2);
               ctx.fill();
             }
+
             ctx.restore();
           }
         }
 
-        drawSnake(ctx, from, to, seed) {
-          // "Black mamba-ish": tapered, glossy black body, slight lateral undulation, a head.
-          const rnd = mulberry32(seed);
-          const a = this.squareToPixel(from);
-          const b = this.squareToPixel(to);
+        drawSnake(ctx, rect, from, to) {
+          // Black mamba-ish: tapered ribbon, gentle shine, wedge head.
+          const rnd = mulberry32(seedPair(from, to) ^ 0x33c9);
+          const a = this.squareToPx(from, rect);
+          const b = this.squareToPx(to, rect);
           const dx = b.x - a.x;
           const dy = b.y - a.y;
-          const len = Math.hypot(dx, dy);
+          const len = Math.hypot(dx, dy) || 1;
+          const dir = { x: dx / len, y: dy / len };
+          const nrm = { x: -dir.y, y: dir.x };
+
           const steps = clamp(Math.floor(len / 16), 18, 60);
           const baseW = clamp(10 + rnd() * 6, 10, 18);
           const wiggle = clamp(10 + rnd() * 12, 10, 20);
-
-          // A curvy centerline sampled as points
-          const pts = [];
-          const dir = { x: dx / (len || 1), y: dy / (len || 1) };
-          const nrm = { x: -dir.y, y: dir.x };
-
           const phase = rnd() * Math.PI * 2;
           const freq = 2.1 + rnd() * 1.6;
+
+          const pts = [];
           for (let i = 0; i <= steps; i++) {
             const t = i / steps;
             const ease = t * t * (3 - 2 * t);
             const px = a.x + dx * ease;
             const py = a.y + dy * ease;
-            const w = Math.sin(phase + t * Math.PI * 2 * freq) * wiggle * (0.25 + 0.75 * Math.sin(Math.PI * t));
-            const jitter = (rnd() - 0.5) * 0.9;
-            pts.push({
-              x: px + nrm.x * w + jitter,
-              y: py + nrm.y * w - jitter,
-              t,
-            });
+            const w =
+              Math.sin(phase + t * Math.PI * 2 * freq) *
+              wiggle *
+              (0.25 + 0.75 * Math.sin(Math.PI * t));
+            const j = (rnd() - 0.5) * 0.9;
+            pts.push({ x: px + nrm.x * w + j, y: py + nrm.y * w - j, t });
           }
 
-          // Build a filled ribbon (left/right offsets)
           const left = [];
           const right = [];
           for (let i = 0; i < pts.length; i++) {
@@ -889,9 +824,7 @@
           ctx.save();
           ctx.shadowColor = "rgba(0,0,0,0.38)";
           ctx.shadowBlur = 18;
-
-          // Body fill
-          ctx.fillStyle = "rgba(10, 10, 10, 0.92)";
+          ctx.fillStyle = "rgba(10,10,10,0.92)";
           ctx.beginPath();
           ctx.moveTo(left[0].x, left[0].y);
           for (let i = 1; i < left.length; i++) ctx.lineTo(left[i].x, left[i].y);
@@ -899,7 +832,7 @@
           ctx.closePath();
           ctx.fill();
 
-          // Gloss highlight (thin, not perfect)
+          // shine
           ctx.shadowBlur = 0;
           ctx.globalAlpha = 0.35;
           ctx.strokeStyle = "rgba(255,255,255,0.22)";
@@ -907,45 +840,43 @@
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
           ctx.beginPath();
-          const hlStart = Math.floor(pts.length * 0.12);
-          const hlEnd = Math.floor(pts.length * 0.85);
-          for (let i = hlStart; i <= hlEnd; i++) {
+          const s0 = Math.floor(pts.length * 0.12);
+          const s1 = Math.floor(pts.length * 0.85);
+          for (let i = s0; i <= s1; i++) {
             const p = pts[i];
-            const offset = 2 + Math.sin(phase + p.t * 9) * 1.2;
-            if (i === hlStart) ctx.moveTo(p.x + offset, p.y - offset);
-            else ctx.lineTo(p.x + offset, p.y - offset);
+            const off = 2 + Math.sin(phase + p.t * 9) * 1.2;
+            if (i === s0) ctx.moveTo(p.x + off, p.y - off);
+            else ctx.lineTo(p.x + off, p.y - off);
           }
           ctx.stroke();
 
-          // Head (at "from") - mamba-ish wedge
+          // head wedge at "from"
           const head = pts[0];
           const neck = pts[2] || pts[1] || head;
-          const hx = head.x;
-          const hy = head.y;
-          const vx = head.x - neck.x;
-          const vy = head.y - neck.y;
-          const vlen = Math.hypot(vx, vy) || 1;
-          const fx = vx / vlen;
-          const fy = vy / vlen;
+          const hvx = head.x - neck.x;
+          const hvy = head.y - neck.y;
+          const hvlen = Math.hypot(hvx, hvy) || 1;
+          const fx = hvx / hvlen;
+          const fy = hvy / hvlen;
           const px = -fy;
           const py = fx;
           const headL = clamp(16 + rnd() * 8, 16, 24);
           const headW = clamp(10 + rnd() * 6, 10, 16);
 
           ctx.globalAlpha = 0.95;
-          ctx.fillStyle = "rgba(12, 12, 12, 0.96)";
+          ctx.fillStyle = "rgba(12,12,12,0.96)";
           ctx.beginPath();
-          ctx.moveTo(hx + fx * headL, hy + fy * headL);
-          ctx.lineTo(hx + px * headW, hy + py * headW);
-          ctx.lineTo(hx - px * headW, hy - py * headW);
+          ctx.moveTo(head.x + fx * headL, head.y + fy * headL);
+          ctx.lineTo(head.x + px * headW, head.y + py * headW);
+          ctx.lineTo(head.x - px * headW, head.y - py * headW);
           ctx.closePath();
           ctx.fill();
 
-          // Small eye glint
+          // tiny eye glint
           ctx.globalAlpha = 0.65;
           ctx.fillStyle = "rgba(255,255,255,0.35)";
           ctx.beginPath();
-          ctx.arc(hx + fx * (headL * 0.55) + px * 2.2, hy + fy * (headL * 0.55) + py * 2.2, 1.2, 0, Math.PI * 2);
+          ctx.arc(head.x + fx * (headL * 0.55) + px * 2.2, head.y + fy * (headL * 0.55) + py * 2.2, 1.2, 0, Math.PI * 2);
           ctx.fill();
 
           ctx.restore();
@@ -955,26 +886,22 @@
       class Game {
         constructor(opts) {
           this.boardEl = opts.boardEl;
-          this.gridEl = opts.gridEl;
           this.canvasEl = opts.canvasEl;
+          this.gridEl = opts.gridEl;
           this.piecesEl = opts.piecesEl;
           this.rollBtn = opts.rollBtn;
-          this.newBoardBtn = opts.newBoardBtn;
+          this.newBtn = opts.newBtn;
           this.resetBtn = opts.resetBtn;
           this.logEl = opts.logEl;
-          this.turnEl = opts.turnEl;
-          this.posEl = opts.posEl;
-          this.lastEl = opts.lastEl;
-          this.playerEl = opts.playerEl || null;
-          this.pieceNameEl = opts.pieceNameEl || null;
+          this.hud = opts.hud;
 
-          this.art = new BoardArt(this.boardEl, this.canvasEl);
+          this.renderer = new BoardRenderer(this.boardEl, this.canvasEl);
 
           this.board = { snakes: new Map(), ladders: new Map() };
           this.players = [];
           this.current = 0;
-          this.turnCount = 1;
-          this.lastRoll = null;
+          this.turn = 1;
+          this.last = null;
           this.locked = false;
           this.finished = false;
           this.winner = null;
@@ -982,42 +909,42 @@
           this._onResize = () => this.redraw();
         }
 
-        init(numPlayers) {
-          this.buildGrid();
-          this.generateBoard();
-          this.startPlayers(numPlayers);
+        init(playerCount) {
+          buildGrid(this.gridEl);
+          this.newBoard();
+          this.startPlayers(playerCount);
           this.bind();
           this.redraw();
           this.log("All set. Try your luck.");
+          this.setButtons(true);
+        }
+
+        bind() {
+          this.rollBtn.addEventListener("click", () => this.takeTurn());
+          this.newBtn.addEventListener("click", () => this.reset(true));
+          this.resetBtn.addEventListener("click", () => this.reset(false));
+          window.addEventListener("resize", this._onResize);
+
+          window.addEventListener("keydown", (e) => {
+            const activeView = document.querySelector(".view.active");
+            if (!activeView || !activeView.contains(this.boardEl)) return;
+            if (e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              this.takeTurn();
+            } else if (e.key === "r" || e.key === "R") {
+              e.preventDefault();
+              this.reset(false);
+            }
+          });
         }
 
         destroy() {
           window.removeEventListener("resize", this._onResize);
         }
 
-        bind() {
-          this.rollBtn.addEventListener("click", () => this.turn());
-          this.newBoardBtn.addEventListener("click", () => this.reset({ newBoard: true }));
-          this.resetBtn.addEventListener("click", () => this.reset({ newBoard: false }));
-          window.addEventListener("resize", this._onResize);
-
-          window.addEventListener("keydown", (e) => {
-            if (document.querySelector(".view.active")?.contains(this.boardEl) !== true) return;
-            if (e.key === " " || e.key === "Spacebar") {
-              e.preventDefault();
-              this.turn();
-              return;
-            }
-            if (e.key === "r" || e.key === "R") {
-              e.preventDefault();
-              this.reset({ newBoard: false });
-            }
-          });
-        }
-
         setButtons(enabled) {
           this.rollBtn.disabled = !enabled;
-          this.newBoardBtn.disabled = !enabled;
+          this.newBtn.disabled = !enabled;
           this.resetBtn.disabled = !enabled;
         }
 
@@ -1025,33 +952,12 @@
           const p = document.createElement("p");
           p.textContent = text;
           this.logEl.prepend(p);
+          // keep log small-ish
+          while (this.logEl.childElementCount > 14) this.logEl.removeChild(this.logEl.lastElementChild);
         }
 
         clearLog() {
           this.logEl.innerHTML = "";
-        }
-
-        buildGrid() {
-          this.gridEl.innerHTML = "";
-          // Visual top-left to bottom-right, but serpentine numbers
-          for (let visualRow = 9; visualRow >= 0; visualRow--) {
-            for (let visualCol = 0; visualCol < 10; visualCol++) {
-              const cell = document.createElement("div");
-              cell.className = "cell";
-
-              const logicalRow = 9 - visualRow;
-              const reversed = logicalRow % 2 === 1;
-              const colInRow = reversed ? 9 - visualCol : visualCol;
-              const n = logicalRow * 10 + colInRow + 1;
-
-              const num = document.createElement("div");
-              num.className = "cellNum";
-              num.textContent = String(n);
-              cell.appendChild(num);
-
-              this.gridEl.appendChild(cell);
-            }
-          }
         }
 
         hasEndpointCollision(map, start, end) {
@@ -1061,19 +967,18 @@
           return false;
         }
 
-        generateBoard() {
+        newBoard() {
           this.board.snakes.clear();
           this.board.ladders.clear();
           const used = new Set([1, 100]);
 
-          const snakeTarget = 7;
           const ladderTarget = 7;
+          const snakeTarget = 7;
 
           const canUse = (x) => x >= 2 && x <= 99 && !used.has(x);
 
           const addPair = (kind) => {
-            let tries = 0;
-            while (tries++ < 3000) {
+            for (let tries = 0; tries < 3000; tries++) {
               let from, to;
               if (kind === "ladder") {
                 from = randInt(2, 75);
@@ -1098,102 +1003,75 @@
             return false;
           };
 
-          while (this.board.ladders.size < ladderTarget) {
-            if (!addPair("ladder")) break;
-          }
-          while (this.board.snakes.size < snakeTarget) {
-            if (!addPair("snake")) break;
-          }
+          while (this.board.ladders.size < ladderTarget) if (!addPair("ladder")) break;
+          while (this.board.snakes.size < snakeTarget) if (!addPair("snake")) break;
         }
 
         startPlayers(n) {
           this.players = [];
           this.piecesEl.innerHTML = "";
 
-          const shapes = pickUnique(["shoe", "hat", "dog"], n);
-          const names = {
-            shoe: "shoe",
-            hat: "wizard hat",
-            dog: "dog",
-          };
+          const shapes = shuffle([
+            { id: "p-shoe", name: "shoe" },
+            { id: "p-hat", name: "wizard hat" },
+            { id: "p-dog", name: "dog" },
+          ]).slice(0, n);
 
           for (let i = 0; i < n; i++) {
-            const shape = shapes[i];
-            const el = createPieceEl(shape, names[shape]);
-            el.dataset.player = String(i + 1);
+            const s = shapes[i];
+            const el = createPiece(s.id, s.name);
             this.piecesEl.appendChild(el);
-            this.players.push({
-              pos: 1,
-              shape,
-              name: names[shape],
-              el,
-            });
+            this.players.push({ pos: 1, name: s.name, el });
           }
 
           this.current = 0;
-          this.turnCount = 1;
-          this.lastRoll = null;
+          this.turn = 1;
+          this.last = null;
           this.locked = false;
           this.finished = false;
           this.winner = null;
-
-          if (this.pieceNameEl && this.players[0]) {
-            this.pieceNameEl.textContent = this.players[0].name;
-          }
           this.updateHud();
-          this.placePieces({ animate: false });
+          this.placePieces(false);
         }
 
-        reset({ newBoard }) {
+        reset(newBoard) {
           this.setButtons(false);
           this.clearLog();
-          if (newBoard) this.generateBoard();
+          if (newBoard) this.newBoard();
           for (const p of this.players) p.pos = 1;
           this.current = 0;
-          this.turnCount = 1;
-          this.lastRoll = null;
+          this.turn = 1;
+          this.last = null;
           this.locked = false;
           this.finished = false;
           this.winner = null;
           this.redraw();
-          this.placePieces({ animate: false });
+          this.placePieces(false);
           this.updateHud();
           this.log(newBoard ? "Fresh board. Same bad luck." : "Back to square one.");
           this.setButtons(true);
         }
 
+        redraw() {
+          this.renderer.draw(this.board);
+          this.placePieces(false);
+        }
+
         updateHud() {
           const p = this.players[this.current];
           if (!p) return;
-
-          if (this.playerEl) this.playerEl.textContent = String(this.current + 1);
-          if (this.turnEl) this.turnEl.textContent = String(this.turnCount);
-          if (this.posEl) this.posEl.textContent = String(p.pos);
-          if (this.lastEl) this.lastEl.textContent = this.lastRoll == null ? "—" : String(this.lastRoll);
-          if (this.pieceNameEl) this.pieceNameEl.textContent = p.name;
-
-          if (this.finished && this.winner != null) {
-            // Keep it understated.
-            if (this.playerEl) this.playerEl.textContent = String(this.winner + 1);
-          }
+          if (this.hud.player) this.hud.player.textContent = String(this.current + 1);
+          if (this.hud.turn) this.hud.turn.textContent = String(this.turn);
+          if (this.hud.pos) this.hud.pos.textContent = String(p.pos);
+          if (this.hud.last) this.hud.last.textContent = this.last == null ? "—" : String(this.last);
+          if (this.hud.piece) this.hud.piece.textContent = p.name;
         }
 
-        redraw() {
-          this.art.draw(this.board);
-          this.placePieces({ animate: false });
-        }
-
-        placePieces({ animate }) {
+        placePieces(animate) {
           const rect = this.boardEl.getBoundingClientRect();
           const inset = 14;
-          const inner = {
-            left: inset,
-            top: inset,
-            w: rect.width - inset * 2,
-            h: rect.height - inset * 2,
-          };
+          const inner = { left: inset, top: inset, w: rect.width - inset * 2, h: rect.height - inset * 2 };
 
-          // Group players by square for "sharing the square"
           const buckets = new Map();
           for (let i = 0; i < this.players.length; i++) {
             const pos = this.players[i].pos;
@@ -1205,78 +1083,78 @@
             const { x, y } = coordForSquare(pos);
             const cx = inner.left + inner.w * x;
             const cy = inner.top + inner.h * y;
-            const offsets = layoutOffsets(idxs.length, 12);
+            const base = offsetsForCount(idxs.length, 12);
 
-            idxs.forEach((playerIndex, j) => {
-              const p = this.players[playerIndex];
-              const off = offsets[j] || { x: 0, y: 0, s: 1 };
-              p.el.style.transition = animate ? "left 180ms ease, top 180ms ease, transform 180ms ease" : "none";
-              p.el.style.left = `${cx + off.x}px`;
-              p.el.style.top = `${cy + off.y}px`;
-              p.el.style.transform = `translate(-50%, -50%) scale(${off.s}) rotate(${(Math.random() - 0.5) * 2}deg)`;
+            idxs.forEach((pi, j) => {
+              const pl = this.players[pi];
+              const off = base[j] || { x: 0, y: 0, s: 1 };
+              const jx = (Math.random() - 0.5) * 1.2;
+              const jy = (Math.random() - 0.5) * 1.2;
+              const rot = (Math.random() - 0.5) * 2;
+              pl.el.style.transition = animate ? "left 180ms ease, top 180ms ease, transform 180ms ease" : "none";
+              pl.el.style.left = `${cx + off.x + jx}px`;
+              pl.el.style.top = `${cy + off.y + jy}px`;
+              pl.el.style.transform = `translate(-50%, -50%) scale(${off.s}) rotate(${rot}deg)`;
             });
           }
         }
 
-        async sleep(ms) {
+        sleep(ms) {
           return new Promise((r) => setTimeout(r, ms));
         }
 
-        async animateWalk(player, from, to) {
+        async walk(pl, from, to) {
           const dir = to >= from ? 1 : -1;
           const steps = Math.abs(to - from);
           for (let i = 1; i <= steps; i++) {
-            player.pos = from + dir * i;
-            this.placePieces({ animate: true });
+            pl.pos = from + dir * i;
+            this.placePieces(true);
             await this.sleep(85);
           }
         }
 
-        async turn() {
+        async takeTurn() {
           if (this.locked || this.finished) return;
-          const p = this.players[this.current];
-          if (!p) return;
+          const pl = this.players[this.current];
+          if (!pl) return;
 
           this.locked = true;
           this.setButtons(false);
 
-          const roll = rollDie();
-          this.lastRoll = roll;
-
+          const roll = randInt(1, 6);
+          this.last = roll;
           const who = this.players.length > 1 ? `Player ${this.current + 1}` : "You";
           this.log(`${who} rolled a ${roll}.`);
           this.updateHud();
 
-          const target = p.pos + roll;
+          const target = pl.pos + roll;
           if (target > 100) {
             this.log("Too much. Stay put.");
             this.locked = false;
             this.setButtons(true);
-            this.advanceTurn();
+            this.advance();
             return;
           }
 
-          const start = p.pos;
-          await this.animateWalk(p, start, target);
-          this.updateHud();
+          const start = pl.pos;
+          await this.walk(pl, start, target);
 
-          // Land -> check ladder/snake (no labels, just the visuals)
-          if (this.board.ladders.has(p.pos)) {
-            const next = this.board.ladders.get(p.pos);
+          if (this.board.ladders.has(pl.pos)) {
+            const next = this.board.ladders.get(pl.pos);
             this.log("Nice. Up you go.");
             await this.sleep(180);
-            await this.animateWalk(p, p.pos, next);
-          } else if (this.board.snakes.has(p.pos)) {
-            const next = this.board.snakes.get(p.pos);
+            await this.walk(pl, pl.pos, next);
+          } else if (this.board.snakes.has(pl.pos)) {
+            const next = this.board.snakes.get(pl.pos);
             this.log("Oh. That one had opinions.");
             await this.sleep(180);
-            await this.animateWalk(p, p.pos, next);
+            await this.walk(pl, pl.pos, next);
           }
 
           this.updateHud();
-          this.placePieces({ animate: true });
+          this.placePieces(true);
 
-          if (p.pos === 100) {
+          if (pl.pos === 100) {
             this.finished = true;
             this.winner = this.current;
             this.log(this.players.length > 1 ? `Player ${this.current + 1} made it.` : "Made it. Finally.");
@@ -1287,106 +1165,94 @@
 
           this.locked = false;
           this.setButtons(true);
-          this.advanceTurn();
+          this.advance();
         }
 
-        advanceTurn() {
+        advance() {
           if (this.players.length <= 1) {
-            this.turnCount += 1;
+            this.turn += 1;
             this.updateHud();
             return;
           }
           this.current = (this.current + 1) % this.players.length;
-          this.turnCount += 1;
+          this.turn += 1;
           this.updateHud();
         }
       }
 
-      function showView(name) {
-        const singleView = $("singleView");
-        const multiView = $("multiView");
-        if (name === "multiplayer") {
-          singleView.classList.remove("active");
-          multiView.classList.add("active");
-        } else {
-          multiView.classList.remove("active");
-          singleView.classList.add("active");
-        }
+      function showView(which) {
+        $("view-single").classList.toggle("active", which === "single");
+        $("view-multi").classList.toggle("active", which === "multi");
       }
 
-      // Single player game
+      // Single-player game
       const singleGame = new Game({
-        boardEl: $("singleBoard"),
-        gridEl: $("singleGrid"),
-        canvasEl: $("singleCanvas"),
-        piecesEl: $("singlePieces"),
-        rollBtn: $("singleRoll"),
-        newBoardBtn: $("singleNewBoard"),
-        resetBtn: $("singleReset"),
-        logEl: $("singleLog"),
-        turnEl: $("singleTurn"),
-        posEl: $("singlePos"),
-        lastEl: $("singleLast"),
-        pieceNameEl: $("singlePieceName"),
+        boardEl: $("single-board"),
+        canvasEl: $("single-canvas"),
+        gridEl: $("single-grid"),
+        piecesEl: $("single-pieces"),
+        rollBtn: $("single-roll"),
+        newBtn: $("single-new"),
+        resetBtn: $("single-reset"),
+        logEl: $("single-log"),
+        hud: {
+          turn: $("single-turn"),
+          pos: $("single-pos"),
+          last: $("single-last"),
+          piece: $("single-piece"),
+          player: null,
+        },
       });
 
-      // Multiplayer game (created after choosing players)
       let multiGame = null;
 
-      function startSingle() {
-        singleGame.init(1);
-        singleGame.setButtons(true);
-      }
-
-      function startMulti(numPlayers) {
-        $("multiSetup").style.display = "none";
-        $("multiStage").style.display = "flex";
-
+      function startMulti(n) {
+        $("multi-setup").style.display = "none";
+        $("multi-stage").style.display = "grid";
         if (multiGame) multiGame.destroy();
         multiGame = new Game({
-          boardEl: $("multiBoard"),
-          gridEl: $("multiGrid"),
-          canvasEl: $("multiCanvas"),
-          piecesEl: $("multiPieces"),
-          rollBtn: $("multiRoll"),
-          newBoardBtn: $("multiNewBoard"),
-          resetBtn: $("multiReset"),
-          logEl: $("multiLog"),
-          turnEl: null,
-          posEl: $("multiPos"),
-          lastEl: $("multiLast"),
-          playerEl: $("multiPlayer"),
+          boardEl: $("multi-board"),
+          canvasEl: $("multi-canvas"),
+          gridEl: $("multi-grid"),
+          piecesEl: $("multi-pieces"),
+          rollBtn: $("multi-roll"),
+          newBtn: $("multi-new"),
+          resetBtn: $("multi-reset"),
+          logEl: $("multi-log"),
+          hud: {
+            player: $("multi-player"),
+            pos: $("multi-pos"),
+            last: $("multi-last"),
+            turn: null,
+            piece: null,
+          },
         });
-        multiGame.init(numPlayers);
-        multiGame.setButtons(true);
+        multiGame.init(n);
         multiGame.log("Alright. Be nice.");
       }
 
+      $("multi-2").addEventListener("click", () => startMulti(2));
+      $("multi-3").addEventListener("click", () => startMulti(3));
+
       function route() {
-        const hash = (location.hash || "").toLowerCase();
-        if (hash === "#multiplayer") {
-          showView("multiplayer");
+        const h = (location.hash || "").toLowerCase();
+        if (h === "#multiplayer") {
+          showView("multi");
+          // show setup unless a multiplayer game was started
+          if (!$("multi-stage").style.display || $("multi-stage").style.display === "none") {
+            $("multi-setup").style.display = "block";
+            $("multi-stage").style.display = "none";
+          }
         } else {
           showView("single");
         }
-
-        // Keep multiplayer page cleanly separated:
-        // entering multiplayer view shows setup unless a game was started.
-        if (document.getElementById("multiView").classList.contains("active")) {
-          if (!$("multiStage").style.display || $("multiStage").style.display === "none") {
-            $("multiSetup").style.display = "block";
-            $("multiStage").style.display = "none";
-          }
-        }
       }
 
-      $("choose2").addEventListener("click", () => startMulti(2));
-      $("choose3").addEventListener("click", () => startMulti(3));
       window.addEventListener("hashchange", route);
 
       // boot
       if (!location.hash) location.hash = "#single";
-      startSingle();
+      singleGame.init(1);
       route();
     </script>
   </body>
