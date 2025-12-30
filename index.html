@@ -10,23 +10,28 @@
     />
     <style>
       :root {
-        --bg0: #070a12;
-        --bg1: #0b1220;
-        --card: rgba(255, 255, 255, 0.06);
-        --card2: rgba(255, 255, 255, 0.09);
-        --stroke: rgba(255, 255, 255, 0.12);
-        --text: rgba(255, 255, 255, 0.92);
-        --muted: rgba(255, 255, 255, 0.68);
-        --muted2: rgba(255, 255, 255, 0.55);
-        --shadow: 0 18px 45px rgba(0, 0, 0, 0.45);
-        --shadow2: 0 10px 25px rgba(0, 0, 0, 0.32);
+        /* A warmer, more "tabletop" palette (less neon/glass, more paper/ink). */
+        --bg0: #f4efe6;
+        --bg1: #efe6d7;
+        --card: rgba(255, 252, 245, 0.88);
+        --card2: rgba(255, 252, 245, 0.68);
+        --stroke: rgba(47, 35, 25, 0.18);
+        --text: rgba(25, 19, 14, 0.92);
+        --muted: rgba(25, 19, 14, 0.66);
+        --muted2: rgba(25, 19, 14, 0.52);
+        --shadow: 0 18px 45px rgba(47, 35, 25, 0.18);
+        --shadow2: 0 10px 25px rgba(47, 35, 25, 0.14);
         --radius: 16px;
         --radius2: 12px;
-        --accent: #7c3aed; /* violet */
-        --accent2: #22c55e; /* green */
-        --danger: #ef4444; /* red */
+        --accent: #3b82f6; /* blue ink */
+        --accent2: #16a34a; /* green */
+        --danger: #dc2626; /* red */
         --warn: #f59e0b;
         --good: #10b981;
+        --paper: rgba(255, 252, 245, 1);
+        --paper2: rgba(250, 241, 225, 1);
+        --ink: rgba(25, 19, 14, 0.92);
+        --grid: rgba(47, 35, 25, 0.12);
       }
 
       * {
@@ -42,13 +47,34 @@
         margin: 0;
         color: var(--text);
         background:
-          radial-gradient(1200px 600px at 20% -10%, rgba(124, 58, 237, 0.32), transparent 60%),
-          radial-gradient(1000px 700px at 90% 10%, rgba(34, 197, 94, 0.18), transparent 55%),
-          radial-gradient(900px 600px at 40% 115%, rgba(59, 130, 246, 0.12), transparent 60%),
+          radial-gradient(900px 520px at 12% 12%, rgba(59, 130, 246, 0.12), transparent 60%),
+          radial-gradient(900px 520px at 88% 12%, rgba(22, 163, 74, 0.1), transparent 58%),
+          radial-gradient(900px 520px at 50% 110%, rgba(220, 38, 38, 0.07), transparent 60%),
           linear-gradient(180deg, var(--bg0), var(--bg1));
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
           "Apple Color Emoji", "Segoe UI Emoji";
         line-height: 1.25;
+        position: relative;
+      }
+
+      /* Subtle paper grain overlay (no external assets). */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 20% 30%, rgba(47, 35, 25, 0.05), transparent 55%),
+          radial-gradient(circle at 70% 60%, rgba(47, 35, 25, 0.04), transparent 60%),
+          repeating-linear-gradient(
+            115deg,
+            rgba(47, 35, 25, 0.018),
+            rgba(47, 35, 25, 0.018) 1px,
+            transparent 1px,
+            transparent 7px
+          );
+        mix-blend-mode: multiply;
+        opacity: 0.55;
       }
 
       a {
@@ -134,7 +160,19 @@
         border: 1px solid var(--stroke);
         border-radius: var(--radius);
         box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
+        position: relative;
+      }
+
+      .card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.6), transparent 45%),
+          radial-gradient(circle at 90% 30%, rgba(255, 255, 255, 0.35), transparent 55%);
+        opacity: 0.55;
       }
 
       .boardCard {
@@ -160,8 +198,29 @@
         aspect-ratio: 1 / 1;
         border-radius: calc(var(--radius) - 6px);
         overflow: hidden;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        background:
+          radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.75), transparent 55%),
+          linear-gradient(180deg, rgba(255, 252, 245, 1), rgba(250, 241, 225, 1));
+        border: 1px solid rgba(47, 35, 25, 0.22);
+        box-shadow: inset 0 0 0 2px rgba(47, 35, 25, 0.06);
+      }
+
+      .boardWrap::after {
+        /* faint paper fibers + vignette */
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 50%, transparent 55%, rgba(47, 35, 25, 0.07) 92%),
+          repeating-linear-gradient(
+            90deg,
+            rgba(47, 35, 25, 0.012),
+            rgba(47, 35, 25, 0.012) 1px,
+            transparent 1px,
+            transparent 10px
+          );
+        opacity: 0.75;
       }
 
       /* Grid is for numbers / squares; canvas draws snakes & ladders; token floats above */
@@ -176,8 +235,8 @@
       .cell {
         position: relative;
         padding: 8px;
-        border-right: 1px solid rgba(255, 255, 255, 0.08);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        border-right: 1px solid rgba(47, 35, 25, 0.14);
+        border-bottom: 1px solid rgba(47, 35, 25, 0.14);
         user-select: none;
       }
 
@@ -193,9 +252,15 @@
         content: "";
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.07), transparent 55%);
-        opacity: 0.8;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)),
+          radial-gradient(circle at 25% 22%, rgba(47, 35, 25, 0.06), transparent 55%);
+        opacity: 0.9;
         pointer-events: none;
+      }
+
+      .cell:nth-child(odd)::before {
+        opacity: 0.75;
       }
 
       .cellNum {
@@ -203,9 +268,9 @@
         top: 7px;
         left: 8px;
         font-size: 12px;
-        color: rgba(255, 255, 255, 0.72);
+        color: rgba(25, 19, 14, 0.72);
         font-variant-numeric: tabular-nums;
-        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
       }
 
       .cellBadges {
@@ -225,19 +290,19 @@
         padding: 4px 7px;
         border-radius: 999px;
         font-size: 11px;
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(0, 0, 0, 0.18);
-        color: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+        border: 1px solid rgba(47, 35, 25, 0.2);
+        background: rgba(255, 255, 255, 0.55);
+        color: rgba(25, 19, 14, 0.82);
+        box-shadow: 0 10px 18px rgba(47, 35, 25, 0.12);
       }
 
       .badge.ladder {
-        border-color: rgba(34, 197, 94, 0.35);
-        background: rgba(34, 197, 94, 0.12);
+        border-color: rgba(22, 163, 74, 0.35);
+        background: rgba(22, 163, 74, 0.12);
       }
       .badge.snake {
-        border-color: rgba(239, 68, 68, 0.35);
-        background: rgba(239, 68, 68, 0.12);
+        border-color: rgba(220, 38, 38, 0.35);
+        background: rgba(220, 38, 38, 0.12);
       }
 
       canvas#paths {
@@ -256,14 +321,15 @@
 
       .token {
         position: absolute;
-        width: 18px;
-        height: 18px;
-        border-radius: 999px;
+        width: 22px;
+        height: 22px;
+        border-radius: 10px;
         transform: translate(-50%, -50%);
         background:
-          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.35) 35%, rgba(124, 58, 237, 1) 75%);
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        box-shadow: 0 14px 30px rgba(124, 58, 237, 0.28);
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.25) 35%, rgba(59, 130, 246, 0.95) 78%),
+          linear-gradient(180deg, rgba(59, 130, 246, 0.88), rgba(37, 99, 235, 0.92));
+        border: 1px solid rgba(47, 35, 25, 0.25);
+        box-shadow: 0 14px 30px rgba(47, 35, 25, 0.16);
       }
 
       .token::after {
@@ -271,8 +337,22 @@
         position: absolute;
         inset: -6px;
         border-radius: 999px;
-        background: radial-gradient(circle, rgba(124, 58, 237, 0.22), transparent 65%);
-        filter: blur(1px);
+        background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 65%);
+        filter: blur(0.6px);
+      }
+
+      .token::before {
+        /* tiny "face" hint (adds a human touch) */
+        content: "";
+        position: absolute;
+        left: 6px;
+        top: 8px;
+        width: 10px;
+        height: 6px;
+        background:
+          radial-gradient(circle at 25% 50%, rgba(25, 19, 14, 0.8) 1.4px, transparent 1.6px),
+          radial-gradient(circle at 75% 50%, rgba(25, 19, 14, 0.8) 1.4px, transparent 1.6px);
+        opacity: 0.55;
       }
 
       .sideCard {
@@ -332,8 +412,8 @@
 
       button {
         appearance: none;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid rgba(47, 35, 25, 0.2);
+        background: rgba(255, 255, 255, 0.55);
         color: var(--text);
         padding: 10px 12px;
         border-radius: 12px;
@@ -346,8 +426,8 @@
 
       button:hover {
         transform: translateY(-1px);
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 255, 255, 0.26);
+        background: rgba(255, 255, 255, 0.72);
+        border-color: rgba(47, 35, 25, 0.28);
       }
 
       button:active {
@@ -355,17 +435,17 @@
       }
 
       button.primary {
-        background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(34, 197, 94, 0.8));
-        border-color: rgba(255, 255, 255, 0.22);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(22, 163, 74, 0.78));
+        border-color: rgba(47, 35, 25, 0.22);
       }
 
       button.primary:hover {
-        background: linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(34, 197, 94, 0.92));
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.98), rgba(22, 163, 74, 0.9));
       }
 
       button.danger {
-        background: rgba(239, 68, 68, 0.12);
-        border-color: rgba(239, 68, 68, 0.35);
+        background: rgba(220, 38, 38, 0.12);
+        border-color: rgba(220, 38, 38, 0.35);
       }
 
       button:disabled {
@@ -377,13 +457,13 @@
       .log {
         padding: 12px;
         border-radius: var(--radius2);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(0, 0, 0, 0.18);
+        border: 1px solid rgba(47, 35, 25, 0.16);
+        background: rgba(255, 255, 255, 0.55);
         min-height: 160px;
         max-height: 260px;
         overflow: auto;
         font-size: 13px;
-        color: rgba(255, 255, 255, 0.82);
+        color: rgba(25, 19, 14, 0.82);
       }
 
       .log p {
@@ -406,10 +486,10 @@
         gap: 8px;
         border-radius: 999px;
         padding: 7px 10px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(255, 255, 255, 0.06);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-        color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(47, 35, 25, 0.18);
+        background: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 10px 25px rgba(47, 35, 25, 0.14);
+        color: rgba(25, 19, 14, 0.84);
         font-size: 12px;
       }
 
@@ -419,14 +499,14 @@
         font-size: 11px;
         padding: 1px 6px;
         border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(0, 0, 0, 0.25);
-        color: rgba(255, 255, 255, 0.85);
+        border: 1px solid rgba(47, 35, 25, 0.18);
+        background: rgba(47, 35, 25, 0.08);
+        color: rgba(25, 19, 14, 0.82);
       }
 
       footer {
         padding: 18px;
-        color: rgba(255, 255, 255, 0.55);
+        color: rgba(25, 19, 14, 0.55);
         font-size: 12px;
         text-align: center;
       }
@@ -450,11 +530,10 @@
         transform: translateX(-50%);
         padding: 12px 14px;
         border-radius: 14px;
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        background: rgba(0, 0, 0, 0.55);
-        color: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(47, 35, 25, 0.18);
+        background: rgba(255, 255, 255, 0.82);
+        color: rgba(25, 19, 14, 0.9);
         box-shadow: var(--shadow);
-        backdrop-filter: blur(10px);
         max-width: min(680px, calc(100vw - 26px));
         display: none;
         z-index: 30;
@@ -462,6 +541,134 @@
 
       .toast.show {
         display: block;
+      }
+
+      /* Dice face (more "game-y" than a plain number). */
+      .dieRow {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .die {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        position: relative;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.35) 45%, transparent 70%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.72));
+        border: 1px solid rgba(47, 35, 25, 0.24);
+        box-shadow: 0 12px 24px rgba(47, 35, 25, 0.16);
+        transform: translateZ(0);
+      }
+
+      .die.rolling {
+        animation: dieJitter 420ms ease-in-out;
+      }
+
+      @keyframes dieJitter {
+        0% {
+          transform: rotate(0deg) translateY(0px);
+        }
+        20% {
+          transform: rotate(-8deg) translateY(-1px);
+        }
+        45% {
+          transform: rotate(10deg) translateY(1px);
+        }
+        70% {
+          transform: rotate(-6deg) translateY(-1px);
+        }
+        100% {
+          transform: rotate(0deg) translateY(0px);
+        }
+      }
+
+      .pip {
+        position: absolute;
+        width: 6.6px;
+        height: 6.6px;
+        border-radius: 99px;
+        background: rgba(25, 19, 14, 0.78);
+        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
+        opacity: 0;
+      }
+
+      .pip.tl {
+        left: 7px;
+        top: 7px;
+      }
+      .pip.tc {
+        left: 50%;
+        top: 7px;
+        transform: translateX(-50%);
+      }
+      .pip.tr {
+        right: 7px;
+        top: 7px;
+      }
+      .pip.ml {
+        left: 7px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .pip.c {
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+      }
+      .pip.mr {
+        right: 7px;
+        top: 50%;
+        transform: translateY(-50%);
+      }
+      .pip.bl {
+        left: 7px;
+        bottom: 7px;
+      }
+      .pip.bc {
+        left: 50%;
+        bottom: 7px;
+        transform: translateX(-50%);
+      }
+      .pip.br {
+        right: 7px;
+        bottom: 7px;
+      }
+
+      .die[data-value="1"] .pip.c {
+        opacity: 1;
+      }
+      .die[data-value="2"] .pip.tl,
+      .die[data-value="2"] .pip.br {
+        opacity: 1;
+      }
+      .die[data-value="3"] .pip.tl,
+      .die[data-value="3"] .pip.c,
+      .die[data-value="3"] .pip.br {
+        opacity: 1;
+      }
+      .die[data-value="4"] .pip.tl,
+      .die[data-value="4"] .pip.tr,
+      .die[data-value="4"] .pip.bl,
+      .die[data-value="4"] .pip.br {
+        opacity: 1;
+      }
+      .die[data-value="5"] .pip.tl,
+      .die[data-value="5"] .pip.tr,
+      .die[data-value="5"] .pip.c,
+      .die[data-value="5"] .pip.bl,
+      .die[data-value="5"] .pip.br {
+        opacity: 1;
+      }
+      .die[data-value="6"] .pip.tl,
+      .die[data-value="6"] .pip.tr,
+      .die[data-value="6"] .pip.ml,
+      .die[data-value="6"] .pip.mr,
+      .die[data-value="6"] .pip.bl,
+      .die[data-value="6"] .pip.br {
+        opacity: 1;
       }
     </style>
   </head>
