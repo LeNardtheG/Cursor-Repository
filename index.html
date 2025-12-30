@@ -31,13 +31,19 @@
         --good: #10b981;
         --outside: #0b0d10;
         --outside2: #07080a;
+
         --board: #5b0f14; /* deep red */
-        --board2: #4a0d11;
-        --ink: rgba(244, 241, 234, 0.9);
+        --boardEdge: rgba(0, 0, 0, 0.24);
+        --boardInnerEdge: rgba(255, 255, 255, 0.06);
+
+        --ink: rgba(244, 241, 234, 0.92);
         --ink2: rgba(244, 241, 234, 0.7);
         --ink3: rgba(244, 241, 234, 0.5);
-        --grid: rgba(0, 0, 0, 0.25);
+
+        --gridLine: rgba(0, 0, 0, 0.22);
+
         --shadow: rgba(0, 0, 0, 0.55);
+
         --wood: rgba(144, 98, 62, 0.92);
         --woodDark: rgba(58, 35, 18, 0.55);
         --moss: rgba(33, 120, 58, 0.55);
@@ -58,8 +64,8 @@
         font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
           "Apple Color Emoji", "Segoe UI Emoji";
         line-height: 1.25;
-          radial-gradient(1200px 650px at 20% 10%, rgba(120, 140, 160, 0.08), transparent 55%),
-          radial-gradient(1000px 650px at 85% 15%, rgba(90, 100, 80, 0.06), transparent 55%),
+          radial-gradient(1200px 650px at 18% 10%, rgba(120, 140, 160, 0.08), transparent 55%),
+          radial-gradient(1000px 650px at 85% 18%, rgba(90, 100, 80, 0.06), transparent 55%),
           linear-gradient(180deg, var(--outside), var(--outside2));
         color: var(--ink);
       }
@@ -91,11 +97,19 @@
       }
 
       .page {
-      .view {
-        display: none;
         min-height: 100%;
         display: grid;
         grid-template-rows: auto 1fr auto;
+      .srOnly {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
       }
 
       header {
@@ -103,8 +117,9 @@
         max-width: 1100px;
         margin: 0 auto;
         width: 100%;
-      .view.active {
-        display: block;
+      .view {
+        display: none;
+        min-height: 100%;
       }
 
       .titleRow {
@@ -113,16 +128,18 @@
         align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-      .shell {
-        width: min(1480px, calc(100vw - 24px));
-        margin: 0 auto;
-        padding: 14px 0 18px;
+      .view.active {
+        display: block;
       }
 
       .brand {
         display: flex;
         gap: 12px;
         align-items: center;
+      .shell {
+        width: min(1480px, calc(100vw - 24px));
+        margin: 0 auto;
+        padding: 14px 0 18px;
       }
 
       .logo {
@@ -224,8 +241,8 @@
         border: 1px solid rgba(255, 255, 255, 0.1);
         box-shadow:
           0 22px 55px var(--shadow),
-          inset 0 0 0 2px rgba(0, 0, 0, 0.22),
-          inset 0 0 0 7px rgba(255, 255, 255, 0.05);
+          inset 0 0 0 2px var(--boardEdge),
+          inset 0 0 0 7px var(--boardInnerEdge);
         transform: rotate(-0.35deg);
       }
 
@@ -284,8 +301,8 @@
         border-right: 1px solid rgba(255, 255, 255, 0.08);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         user-select: none;
-        border-right: 1px solid rgba(0, 0, 0, 0.22);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.22);
+        border-right: 1px solid var(--gridLine);
+        border-bottom: 1px solid var(--gridLine);
         background:
           radial-gradient(circle at 24% 20%, rgba(255, 255, 255, 0.06), transparent 62%),
           radial-gradient(circle at 70% 78%, rgba(0, 0, 0, 0.1), transparent 65%);
@@ -300,7 +317,7 @@
         background: radial-gradient(circle at 20% 25%, rgba(255, 255, 255, 0.07), transparent 55%);
         opacity: 0.8;
         pointer-events: none;
-        opacity: 0.65;
+        opacity: 0.6;
         background:
           radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.035), transparent 55%),
           radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
@@ -318,7 +335,7 @@
         left: 7px;
         font-size: 9px;
         letter-spacing: 0.2px;
-        color: rgba(255, 255, 255, 0.36);
+        color: rgba(255, 255, 255, 0.34);
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
           monospace;
         user-select: none;
@@ -597,6 +614,32 @@
         color: rgba(255, 255, 255, 0.85);
         font-size: 12px;
       }
+    </style>
+  </head>
+  <body>
+    <!-- metallic piece art -->
+    <svg class="srOnly" aria-hidden="true">
+      <defs>
+        <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#fbfbfb" stop-opacity="0.98" />
+          <stop offset="0.23" stop-color="#d7d7d7" stop-opacity="0.98" />
+          <stop offset="0.52" stop-color="#bdbdbd" stop-opacity="0.98" />
+          <stop offset="0.78" stop-color="#f2f2f2" stop-opacity="0.98" />
+          <stop offset="1" stop-color="#9f9f9f" stop-opacity="0.98" />
+        </linearGradient>
+        <filter id="metalRough" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="11" />
+          <feColorMatrix
+            type="matrix"
+            values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            0 0 0 0.16 0"
+          />
+          <feComposite operator="in" in2="SourceGraphic" />
+          <feBlend mode="overlay" in2="SourceGraphic" />
+        </filter>
 
       .kbd {
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
@@ -608,24 +651,76 @@
         background: rgba(0, 0, 0, 0.25);
         color: rgba(255, 255, 255, 0.85);
       }
+        <symbol id="piece-shoe" viewBox="0 0 64 64">
+          <path
+            d="M10 40c6 0 10-6 14-14 3-7 7-10 12-10 4 0 6 3 8 6 2 4 4 7 9 9 4 2 7 4 7 8 0 6-6 9-16 9H18c-8 0-12-3-12-8 0-3 2-6 4-6z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M16 41c9 2 20 2 32 0"
+            stroke="rgba(0,0,0,0.22)"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            opacity="0.55"
+          />
+        </symbol>
 
       footer {
         padding: 18px;
         color: rgba(255, 255, 255, 0.55);
-      .note {
-        margin-top: 10px;
-        color: rgba(244, 241, 234, 0.62);
         font-size: 12px;
         text-align: center;
-        line-height: 1.25;
       }
+        <symbol id="piece-hat" viewBox="0 0 64 64">
+          <path
+            d="M30 10c10 10 16 22 16 30 0 7-6 10-14 10-7 0-14-3-14-10 0-9 4-18 12-30z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M10 44c8 5 36 5 44 0"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+        </symbol>
 
       .srOnly {
         position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
         clip: rect(0, 0, 0, 0);
         white-space: nowrap;
         border: 0;
       }
+        <symbol id="piece-dog" viewBox="0 0 64 64">
+          <path
+            d="M18 44c0-10 7-18 16-18 7 0 12 4 14 9 3 0 6 2 6 6 0 5-4 8-9 8-1 5-6 9-13 9-9 0-14-6-14-14z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M23 33c-3-2-6-5-6-9 0-5 5-7 9-5"
+            fill="none"
+            stroke="rgba(0,0,0,0.24)"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            opacity="0.6"
+          />
+        </symbol>
+      </defs>
+    </svg>
 
       .toast {
         position: fixed;
@@ -658,6 +753,15 @@
             <div>
               <h1>Snakes & Ladders</h1>
               <p class="subtitle">A one-page video game. Roll, climb, slide, and reach 100.</p>
+    <section class="view active" id="view-single" aria-label="Single player">
+      <div class="shell">
+        <div class="title">LeNard’s board game</div>
+        <div class="stage">
+          <div class="boardArea">
+            <div class="board" id="single-board">
+              <canvas class="paths" id="single-canvas" width="1000" height="1000" aria-hidden="true"></canvas>
+              <div class="grid" id="single-grid" aria-hidden="true"></div>
+              <div class="pieces" id="single-pieces" aria-hidden="true"></div>
             </div>
           </div>
           <div class="topActions">
@@ -671,26 +775,6 @@
           </div>
         </div>
       </header>
-    <!-- piece art (metallic) -->
-    <svg class="srOnly" aria-hidden="true">
-      <defs>
-        <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#fbfbfb" stop-opacity="0.98" />
-          <stop offset="0.23" stop-color="#d7d7d7" stop-opacity="0.98" />
-          <stop offset="0.52" stop-color="#bdbdbd" stop-opacity="0.98" />
-          <stop offset="0.78" stop-color="#f2f2f2" stop-opacity="0.98" />
-          <stop offset="1" stop-color="#9f9f9f" stop-opacity="0.98" />
-        </linearGradient>
-        <filter id="metalRough" x="-20%" y="-20%" width="140%" height="140%">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="11" />
-          <feColorMatrix type="matrix" values="
-            1 0 0 0 0
-            0 1 0 0 0
-            0 0 1 0 0
-            0 0 0 0.16 0" />
-          <feComposite operator="in" in2="SourceGraphic" />
-          <feBlend mode="overlay" in2="SourceGraphic" />
-        </filter>
 
       <main>
         <section class="card boardCard" aria-label="Game board">
@@ -698,128 +782,64 @@
             <div>
               <div class="mono" style="font-weight: 750; letter-spacing: 0.2px">Board</div>
               <div class="hint">Start at 1. Exact roll to land on 100 wins.</div>
+          <aside class="side" aria-label="Controls">
+            <div class="row">
+              <div class="label">Turn</div>
+              <div class="value" id="single-turn">1</div>
             </div>
             <div class="mono" style="color: rgba(255, 255, 255, 0.75); font-size: 12px">
               Snakes: <span id="snakeCount">—</span> · Ladders: <span id="ladderCount">—</span>
+            <div class="row">
+              <div class="label">On</div>
+              <div class="value" id="single-pos">1</div>
             </div>
           </div>
-        <symbol id="p-shoe" viewBox="0 0 64 64">
-          <path
-            d="M10 40c6 0 10-6 14-14 3-7 7-10 12-10 4 0 6 3 8 6 2 4 4 7 9 9 4 2 7 4 7 8 0 6-6 9-16 9H18c-8 0-12-3-12-8 0-3 2-6 4-6z"
-            fill="url(#silverGrad)"
-            stroke="rgba(0,0,0,0.35)"
-            stroke-width="1.5"
-            filter="url(#metalRough)"
-          />
-          <path
-            d="M16 41c9 2 20 2 32 0"
-            stroke="rgba(0,0,0,0.22)"
-            stroke-width="1.2"
-            stroke-linecap="round"
-            opacity="0.55"
-          />
-        </symbol>
 
           <div class="boardWrap" id="boardWrap">
             <canvas id="paths" width="1000" height="1000" aria-hidden="true"></canvas>
             <div class="boardGrid" id="boardGrid" aria-hidden="true"></div>
             <div class="tokenLayer" aria-hidden="true">
               <div class="token" id="token"></div>
+            <div class="row">
+              <div class="label">Last</div>
+              <div class="value" id="single-last">—</div>
             </div>
           </div>
         </section>
-        <symbol id="p-hat" viewBox="0 0 64 64">
-          <path
-            d="M30 10c10 10 16 22 16 30 0 7-6 10-14 10-7 0-14-3-14-10 0-9 4-18 12-30z"
-            fill="url(#silverGrad)"
-            stroke="rgba(0,0,0,0.35)"
-            stroke-width="1.5"
-            filter="url(#metalRough)"
-          />
-          <path
-            d="M10 44c8 5 36 5 44 0"
-            fill="url(#silverGrad)"
-            stroke="rgba(0,0,0,0.35)"
-            stroke-width="1.5"
-            filter="url(#metalRough)"
-          />
-        </symbol>
 
         <aside class="card sideCard" aria-label="Game controls">
           <div class="panelTitle">
             <h2>Controls</h2>
             <div class="small">Single-player</div>
           </div>
-        <symbol id="p-dog" viewBox="0 0 64 64">
-          <path
-            d="M18 44c0-10 7-18 16-18 7 0 12 4 14 9 3 0 6 2 6 6 0 5-4 8-9 8-1 5-6 9-13 9-9 0-14-6-14-14z"
-            fill="url(#silverGrad)"
-            stroke="rgba(0,0,0,0.35)"
-            stroke-width="1.5"
-            filter="url(#metalRough)"
-          />
-          <path
-            d="M23 33c-3-2-6-5-6-9 0-5 5-7 9-5"
-            fill="none"
-            stroke="rgba(0,0,0,0.24)"
-            stroke-width="1.3"
-            stroke-linecap="round"
-            opacity="0.6"
-          />
-        </symbol>
-      </defs>
-    </svg>
 
           <div class="stats" role="group" aria-label="Current status">
             <div class="stat">
               <div class="label">Position</div>
               <div class="value mono"><span id="pos">1</span> / 100</div>
-    <section class="view active" id="view-single" aria-label="Single player">
-      <div class="shell">
-        <div class="title">LeNard’s board game</div>
-        <div class="stage">
-          <div class="boardArea">
-            <div class="board" id="single-board">
-              <canvas class="paths" id="single-canvas" aria-hidden="true"></canvas>
-              <div class="grid" id="single-grid" aria-hidden="true"></div>
-              <div class="pieces" id="single-pieces" aria-hidden="true"></div>
-            </div>
-            <div class="stat">
-              <div class="label">Last roll</div>
-              <div class="value mono"><span id="lastRoll">—</span></div>
-          </div>
-          <aside class="side" aria-label="Controls">
-            <div class="row">
-              <div class="label">Turn</div>
-              <div class="value" id="single-turn">1</div>
-            </div>
-            <div class="stat">
-              <div class="label">Turns</div>
-              <div class="value mono"><span id="turns">0</span></div>
-            <div class="row">
-              <div class="label">On</div>
-              <div class="value" id="single-pos">1</div>
-            </div>
-            <div class="stat">
-              <div class="label">Status</div>
-              <div class="value"><span id="statusText">Ready</span></div>
-            <div class="row">
-              <div class="label">Last</div>
-              <div class="value" id="single-last">—</div>
-            </div>
-          </div>
             <div class="row">
               <div class="label">Piece</div>
               <div class="value" id="single-piece">—</div>
             </div>
+            <div class="stat">
+              <div class="label">Last roll</div>
+              <div class="value mono"><span id="lastRoll">—</span></div>
             <div class="controls">
               <button id="single-roll" type="button">Roll</button>
               <button id="single-new" type="button">New board</button>
               <button id="single-reset" type="button">Reset</button>
             </div>
+            <div class="stat">
+              <div class="label">Turns</div>
+              <div class="value mono"><span id="turns">0</span></div>
             <div style="margin-top: 10px; color: rgba(244, 241, 234, 0.62)">
               <a href="#multiplayer">Multiplayer</a>
             </div>
+            <div class="stat">
+              <div class="label">Status</div>
+              <div class="value"><span id="statusText">Ready</span></div>
+            </div>
+          </div>
             <div class="log" id="single-log" aria-live="polite"></div>
           </aside>
         </div>
@@ -847,9 +867,8 @@
             <button id="multi-3" type="button">3 players</button>
           </div>
           <div class="log" id="log" aria-live="polite"></div>
-          <div class="note">
-            Each player gets a little silver thing.
-            <div style="margin-top: 8px"><a href="#single">Back to single-player</a></div>
+          <div style="margin-top: 10px; color: rgba(244, 241, 234, 0.62)">
+            <a href="#single">Back to single-player</a>
           </div>
         </div>
 
@@ -859,7 +878,7 @@
         <div class="stage" id="multi-stage" style="display: none">
           <div class="boardArea">
             <div class="board" id="multi-board">
-              <canvas class="paths" id="multi-canvas" aria-hidden="true"></canvas>
+              <canvas class="paths" id="multi-canvas" width="1000" height="1000" aria-hidden="true"></canvas>
               <div class="grid" id="multi-grid" aria-hidden="true"></div>
               <div class="pieces" id="multi-pieces" aria-hidden="true"></div>
             </div>
@@ -1068,10 +1087,15 @@
         els.rollBtn.disabled = !enabled;
         els.newBoardBtn.disabled = !enabled;
         els.resetBtn.disabled = !enabled;
-      function createPiece(shape, label) {
+      function createPiece(symbolId, label) {
         const el = document.createElement("div");
         el.className = "piece";
-        el.innerHTML = `<svg viewBox="0 0 64 64" role="img" aria-label="${label}"><use href="#${shape}"></use></svg>`;
+        // href works in modern browsers; xlink:href helps older ones.
+        el.innerHTML = `
+          <svg viewBox="0 0 64 64" role="img" aria-label="${label}">
+            <use href="#${symbolId}" xlink:href="#${symbolId}"></use>
+          </svg>
+        `;
         return el;
       }
 
@@ -1129,7 +1153,7 @@
 
             const badges = document.createElement("div");
             badges.className = "cellBadges";
-          // gentle ink smudges (imperfection)
+          // subtle smudges
           ctx.save();
           ctx.globalAlpha = 0.12;
           ctx.fillStyle = "rgba(0,0,0,0.22)";
@@ -1156,21 +1180,12 @@
               badges.appendChild(b);
             }
             cell.appendChild(badges);
+          // ladders under snakes
+          for (const [from, to] of boardMap.ladders.entries()) this.drawLadder(ctx, rect, from, to);
+          for (const [from, to] of boardMap.snakes.entries()) this.drawSnake(ctx, rect, from, to);
+        }
 
             els.boardGrid.appendChild(cell);
-          for (const [from, to] of boardMap.ladders.entries()) {
-            this.drawLadder(ctx, rect, from, to);
-          }
-          for (const [from, to] of boardMap.snakes.entries()) {
-            this.drawSnake(ctx, rect, from, to);
-          }
-        }
-      }
-
-      function drawPaths() {
-        const canvas = els.canvas;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
         drawLadder(ctx, rect, from, to) {
           const rnd = mulberry32(seedPair(from, to) ^ 0x8f2a);
           const a = this.squareToPx(from, rect);
@@ -1181,27 +1196,17 @@
           const dir = { x: dx / len, y: dy / len };
           const nrm = { x: -dir.y, y: dir.x };
 
-        // Match canvas internal resolution to on-screen size for crisp lines.
-        const rect = els.boardWrap.getBoundingClientRect();
-        const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-        canvas.width = Math.floor(rect.width * dpr);
-        canvas.height = Math.floor(rect.height * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           const rail = clamp(10 + rnd() * 6, 10, 16);
           const railW = clamp(4.5 + rnd() * 2.0, 4.5, 7.4);
 
-        ctx.clearRect(0, 0, rect.width, rect.height);
           const wood = getComputedStyle(document.documentElement).getPropertyValue("--wood").trim() || "rgba(144, 98, 62, 0.92)";
-          const woodDark = getComputedStyle(document.documentElement).getPropertyValue("--woodDark").trim() || "rgba(58, 35, 18, 0.55)";
+          const woodDark =
+            getComputedStyle(document.documentElement).getPropertyValue("--woodDark").trim() || "rgba(58, 35, 18, 0.55)";
           const moss = getComputedStyle(document.documentElement).getPropertyValue("--moss").trim() || "rgba(33, 120, 58, 0.55)";
 
-        function drawConnection(from, to, kind) {
-          const a = pixelForSquare(from);
-          const b = pixelForSquare(to);
           const jitter = (t) => (rnd() - 0.5) * t;
 
-          // Control points for a smooth curve (slight sideways bend).
-          // rails (slightly bowed old wood)
+          // rails
           for (const side of [-1, 1]) {
             const ox = nrm.x * rail * side;
             const oy = nrm.y * rail * side;
@@ -1233,14 +1238,26 @@
             ctx.stroke();
             ctx.restore();
           }
+        }
+      }
 
-          // rungs + cracks + moss
+      function drawPaths() {
+        const canvas = els.canvas;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+          // rungs
           const rungCount = clamp(Math.floor(len / 48) + 2, 4, 9);
           for (let i = 1; i <= rungCount; i++) {
             const t = i / (rungCount + 1);
             const px = a.x + dx * t + jitter(2.2);
             const py = a.y + dy * t + jitter(2.2);
 
+        // Match canvas internal resolution to on-screen size for crisp lines.
+        const rect = els.boardWrap.getBoundingClientRect();
+        const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+        canvas.width = Math.floor(rect.width * dpr);
+        canvas.height = Math.floor(rect.height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
             ctx.save();
             ctx.lineCap = "round";
             ctx.shadowColor = "rgba(0,0,0,0.24)";
@@ -1252,6 +1269,7 @@
             ctx.lineTo(px + nrm.x * rail + jitter(0.9), py + nrm.y * rail + jitter(0.9));
             ctx.stroke();
 
+        ctx.clearRect(0, 0, rect.width, rect.height);
             // cracks
             ctx.shadowBlur = 0;
             ctx.globalAlpha = 0.6;
@@ -1267,7 +1285,10 @@
               ctx.stroke();
             }
 
-            // moss flecks near cracks
+        function drawConnection(from, to, kind) {
+          const a = pixelForSquare(from);
+          const b = pixelForSquare(to);
+            // moss
             ctx.globalAlpha = 0.85;
             ctx.fillStyle = moss;
             const mossN = Math.floor(rnd() * 4);
@@ -1279,12 +1300,13 @@
               ctx.fill();
             }
 
+          // Control points for a smooth curve (slight sideways bend).
             ctx.restore();
           }
         }
 
         drawSnake(ctx, rect, from, to) {
-          // Black mamba-ish: tapered ribbon, gentle shine, wedge head.
+          // black mamba-ish: tapered ribbon + shine + wedge head
           const rnd = mulberry32(seedPair(from, to) ^ 0x33c9);
           const a = this.squareToPx(from, rect);
           const b = this.squareToPx(to, rect);
@@ -1530,7 +1552,6 @@
           const p = document.createElement("p");
           p.textContent = text;
           this.logEl.prepend(p);
-          // keep log small-ish
           while (this.logEl.childElementCount > 14) this.logEl.removeChild(this.logEl.lastElementChild);
         }
 
@@ -1627,19 +1648,20 @@
 
         state.locked = true;
         setButtonsEnabled(false);
-          const shapes = shuffle([
-            { id: "p-shoe", name: "shoe" },
-            { id: "p-hat", name: "wizard hat" },
-            { id: "p-dog", name: "dog" },
-          ]).slice(0, n);
+          const pool = shuffle([
+            { sym: "piece-shoe", name: "shoe" },
+            { sym: "piece-hat", name: "wizard hat" },
+            { sym: "piece-dog", name: "dog" },
+          ]);
+          const chosen = pool.slice(0, n);
 
         const roll = rollDie();
         state.lastRoll = roll;
         state.turns += 1;
         updateStats();
           for (let i = 0; i < n; i++) {
-            const s = shapes[i];
-            const el = createPiece(s.id, s.name);
+            const s = chosen[i];
+            const el = createPiece(s.sym, s.name);
             this.piecesEl.appendChild(el);
             this.players.push({ pos: 1, name: s.name, el });
           }
@@ -1779,17 +1801,46 @@
 
         clearLog();
         logLine("New run started. Roll to begin!");
+        async applyTransitions(pl) {
+          // apply snake/ladder repeatedly, but guard against loops.
+          const seen = new Set();
+          while (true) {
+            if (seen.has(pl.pos)) break;
+            seen.add(pl.pos);
+            if (this.board.ladders.has(pl.pos)) {
+              const next = this.board.ladders.get(pl.pos);
+              this.log("Nice. Up you go.");
+              await this.sleep(180);
+              await this.walk(pl, pl.pos, next);
+              continue;
+            }
+            if (this.board.snakes.has(pl.pos)) {
+              const next = this.board.snakes.get(pl.pos);
+              this.log("Oh. That one had opinions.");
+              await this.sleep(180);
+              await this.walk(pl, pl.pos, next);
+              continue;
+            }
+            break;
+          }
+        }
+
+        if (!keepBoard) generateBoard();
         async takeTurn() {
           if (this.locked || this.finished) return;
           const pl = this.players[this.current];
           if (!pl) return;
 
-        if (!keepBoard) generateBoard();
+        updateStats();
+        setTokenPosition(1, { animate: false });
+      }
           this.locked = true;
           this.setButtons(false);
 
-        updateStats();
-        setTokenPosition(1, { animate: false });
+      function ensureLayoutAndRedraw() {
+        // Token and canvas depend on boardWrap size.
+        setTokenPosition(state.pos, { animate: false });
+        drawPaths();
       }
           const roll = randInt(1, 6);
           this.last = roll;
@@ -1797,11 +1848,9 @@
           this.log(`${who} rolled a ${roll}.`);
           this.updateHud();
 
-      function ensureLayoutAndRedraw() {
-        // Token and canvas depend on boardWrap size.
-        setTokenPosition(state.pos, { animate: false });
-        drawPaths();
-      }
+      function init() {
+        generateBoard();
+        resetRun({ keepBoard: true });
           const target = pl.pos + roll;
           if (target > 100) {
             this.log("Too much. Stay put.");
@@ -1811,26 +1860,12 @@
             return;
           }
 
-      function init() {
-        generateBoard();
-        resetRun({ keepBoard: true });
-          const start = pl.pos;
-          await this.walk(pl, start, target);
-
         els.rollBtn.addEventListener("click", doTurn);
         els.resetBtn.addEventListener("click", () => resetRun({ keepBoard: true }));
         els.newBoardBtn.addEventListener("click", () => resetRun({ keepBoard: false }));
-          if (this.board.ladders.has(pl.pos)) {
-            const next = this.board.ladders.get(pl.pos);
-            this.log("Nice. Up you go.");
-            await this.sleep(180);
-            await this.walk(pl, pl.pos, next);
-          } else if (this.board.snakes.has(pl.pos)) {
-            const next = this.board.snakes.get(pl.pos);
-            this.log("Oh. That one had opinions.");
-            await this.sleep(180);
-            await this.walk(pl, pl.pos, next);
-          }
+          const start = pl.pos;
+          await this.walk(pl, start, target);
+          await this.applyTransitions(pl);
 
         window.addEventListener("resize", () => {
           // Debounce-ish via rAF
@@ -1877,7 +1912,7 @@
         $("view-multi").classList.toggle("active", which === "multi");
       }
 
-      // Single-player game
+      // Single player instance
       const singleGame = new Game({
         boardEl: $("single-board"),
         canvasEl: $("single-canvas"),
@@ -1931,7 +1966,6 @@
         const h = (location.hash || "").toLowerCase();
         if (h === "#multiplayer") {
           showView("multi");
-          // show setup unless a multiplayer game was started
           if (!$("multi-stage").style.display || $("multi-stage").style.display === "none") {
             $("multi-setup").style.display = "block";
             $("multi-stage").style.display = "none";
