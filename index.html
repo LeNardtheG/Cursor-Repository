@@ -3,35 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Snakes & Ladders</title>
-    <meta
-      name="description"
-      content="A one-page Snakes & Ladders video game. Roll the die, climb ladders, avoid snakes, and race to 100."
-    />
+    <title>LeNard’s board game</title>
+    <meta name="description" content="LeNard’s board game — snakes, ladders, and a little bad luck." />
     <style>
       :root {
-        /* A warmer, more "tabletop" palette (less neon/glass, more paper/ink). */
-        --bg0: #f4efe6;
-        --bg1: #efe6d7;
-        --card: rgba(255, 252, 245, 0.88);
-        --card2: rgba(255, 252, 245, 0.68);
-        --stroke: rgba(47, 35, 25, 0.18);
-        --text: rgba(25, 19, 14, 0.92);
-        --muted: rgba(25, 19, 14, 0.66);
-        --muted2: rgba(25, 19, 14, 0.52);
-        --shadow: 0 18px 45px rgba(47, 35, 25, 0.18);
-        --shadow2: 0 10px 25px rgba(47, 35, 25, 0.14);
-        --radius: 16px;
-        --radius2: 12px;
-        --accent: #3b82f6; /* blue ink */
-        --accent2: #16a34a; /* green */
-        --danger: #dc2626; /* red */
-        --warn: #f59e0b;
-        --good: #10b981;
-        --paper: rgba(255, 252, 245, 1);
-        --paper2: rgba(250, 241, 225, 1);
-        --ink: rgba(25, 19, 14, 0.92);
-        --grid: rgba(47, 35, 25, 0.12);
+        --outside: #0c0f12;
+        --outside2: #0a0b0d;
+        --ink: rgba(240, 236, 229, 0.9);
+        --ink2: rgba(240, 236, 229, 0.66);
+        --ink3: rgba(240, 236, 229, 0.46);
+        --deep-red: #5b0f14;
+        --deep-red2: #4a0d11;
+        --grid: rgba(20, 10, 10, 0.35);
+        --grid2: rgba(255, 255, 255, 0.12);
+        --paperSpeck: rgba(0, 0, 0, 0.08);
+        --shadow: rgba(0, 0, 0, 0.55);
       }
 
       * {
@@ -45,36 +31,30 @@
 
       body {
         margin: 0;
-        color: var(--text);
         background:
-          radial-gradient(900px 520px at 12% 12%, rgba(59, 130, 246, 0.12), transparent 60%),
-          radial-gradient(900px 520px at 88% 12%, rgba(22, 163, 74, 0.1), transparent 58%),
-          radial-gradient(900px 520px at 50% 110%, rgba(220, 38, 38, 0.07), transparent 60%),
-          linear-gradient(180deg, var(--bg0), var(--bg1));
-        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial,
-          "Apple Color Emoji", "Segoe UI Emoji";
-        line-height: 1.25;
-        position: relative;
+          radial-gradient(1200px 600px at 25% 10%, rgba(100, 120, 140, 0.08), transparent 55%),
+          radial-gradient(900px 520px at 85% 15%, rgba(80, 90, 70, 0.06), transparent 55%),
+          linear-gradient(180deg, var(--outside), var(--outside2));
+        color: var(--ink);
+        font-family: ui-serif, Georgia, "Times New Roman", Times, serif;
       }
 
-      /* Subtle paper grain overlay (no external assets). */
       body::before {
         content: "";
         position: fixed;
         inset: 0;
         pointer-events: none;
         background:
-          radial-gradient(circle at 20% 30%, rgba(47, 35, 25, 0.05), transparent 55%),
-          radial-gradient(circle at 70% 60%, rgba(47, 35, 25, 0.04), transparent 60%),
+          radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.035), transparent 55%),
+          radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.03), transparent 60%),
           repeating-linear-gradient(
-            115deg,
-            rgba(47, 35, 25, 0.018),
-            rgba(47, 35, 25, 0.018) 1px,
+            112deg,
+            rgba(255, 255, 255, 0.02),
+            rgba(255, 255, 255, 0.02) 1px,
             transparent 1px,
-            transparent 7px
+            transparent 8px
           );
-        mix-blend-mode: multiply;
-        opacity: 0.55;
+        opacity: 0.5;
       }
 
       a {
@@ -82,168 +62,137 @@
         text-decoration: none;
       }
 
-      .page {
+      .view {
         min-height: 100%;
-        display: grid;
-        grid-template-rows: auto 1fr auto;
+        display: none;
       }
 
-      header {
-        padding: 28px 18px 10px;
-        max-width: 1100px;
+      .view.active {
+        display: block;
+      }
+
+      .shell {
+        width: min(1400px, calc(100vw - 24px));
         margin: 0 auto;
-        width: 100%;
+        padding: 14px 0 18px;
       }
 
-      .titleRow {
-        display: flex;
-        gap: 16px;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-      }
-
-      .brand {
-        display: flex;
-        gap: 12px;
-        align-items: center;
-      }
-
-      .logo {
-        width: 46px;
-        height: 46px;
-        border-radius: 14px;
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.24), transparent 60%),
-          linear-gradient(135deg, rgba(124, 58, 237, 1), rgba(34, 197, 94, 1));
-        box-shadow: var(--shadow2);
-        border: 1px solid rgba(255, 255, 255, 0.14);
-      }
-
-      h1 {
-        margin: 0;
-        font-size: 22px;
+      .title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 500;
         letter-spacing: 0.2px;
+        margin: 6px 0 14px;
+        color: rgba(240, 236, 229, 0.86);
       }
 
-      .subtitle {
-        margin: 3px 0 0;
-        color: var(--muted);
-        font-size: 13px;
-      }
-
-      .topActions {
+      .stage {
         display: flex;
-        gap: 10px;
-        align-items: center;
-        flex-wrap: wrap;
+        gap: 14px;
+        align-items: flex-start;
       }
 
-      main {
-        max-width: 1100px;
-        margin: 0 auto;
-        width: 100%;
-        padding: 14px 18px 28px;
-        display: grid;
-        grid-template-columns: 1.15fr 0.85fr;
-        gap: 18px;
+      /* Board dominates (>=80% width). */
+      .boardArea {
+        flex: 1 1 auto;
+        min-width: 0;
       }
 
-      @media (max-width: 980px) {
-        main {
-          grid-template-columns: 1fr;
+      .quietSide {
+        width: clamp(160px, 18vw, 240px);
+        flex: 0 0 auto;
+        color: rgba(240, 236, 229, 0.82);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        font-size: 12px;
+        line-height: 1.2;
+        padding-top: 8px;
+      }
+
+      /* On small screens, stack controls under board but keep them visually quieter. */
+      @media (max-width: 880px) {
+        .stage {
+          flex-direction: column;
+        }
+        .quietSide {
+          width: 100%;
+          max-width: 520px;
         }
       }
 
-      .card {
-        background: var(--card);
-        border: 1px solid var(--stroke);
-        border-radius: var(--radius);
-        box-shadow: var(--shadow);
-        position: relative;
-      }
-
-      .card::before {
-        content: "";
-        position: absolute;
-        inset: 0;
-        border-radius: inherit;
-        pointer-events: none;
-        background:
-          radial-gradient(circle at 15% 20%, rgba(255, 255, 255, 0.6), transparent 45%),
-          radial-gradient(circle at 90% 30%, rgba(255, 255, 255, 0.35), transparent 55%);
-        opacity: 0.55;
-      }
-
-      .boardCard {
-        padding: 14px;
-      }
-
-      .boardTop {
-        display: flex;
-        align-items: baseline;
-        justify-content: space-between;
-        gap: 12px;
-        padding: 2px 2px 12px;
-      }
-
-      .boardTop .hint {
-        color: var(--muted);
-        font-size: 13px;
-      }
-
-      .boardWrap {
+      .board {
         position: relative;
         width: 100%;
         aspect-ratio: 1 / 1;
-        border-radius: calc(var(--radius) - 6px);
+        background: var(--deep-red);
+        border-radius: 16px;
         overflow: hidden;
-        background:
-          radial-gradient(circle at 18% 24%, rgba(255, 255, 255, 0.75), transparent 55%),
-          linear-gradient(180deg, rgba(255, 252, 245, 1), rgba(250, 241, 225, 1));
-        border: 1px solid rgba(47, 35, 25, 0.22);
-        box-shadow: inset 0 0 0 2px rgba(47, 35, 25, 0.06);
+        box-shadow:
+          0 22px 55px var(--shadow),
+          inset 0 0 0 2px rgba(0, 0, 0, 0.22),
+          inset 0 0 0 6px rgba(255, 255, 255, 0.05);
+        transform: rotate(-0.35deg);
       }
 
-      .boardWrap::after {
-        /* faint paper fibers + vignette */
+      /* Cardboard / print imperfections */
+      .board::before {
         content: "";
         position: absolute;
         inset: 0;
         pointer-events: none;
         background:
-          radial-gradient(circle at 50% 50%, transparent 55%, rgba(47, 35, 25, 0.07) 92%),
+          radial-gradient(circle at 18% 22%, rgba(255, 255, 255, 0.06), transparent 55%),
+          radial-gradient(circle at 78% 68%, rgba(0, 0, 0, 0.16), transparent 60%),
+          repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.02),
+            rgba(255, 255, 255, 0.02) 1px,
+            transparent 1px,
+            transparent 7px
+          ),
           repeating-linear-gradient(
             90deg,
-            rgba(47, 35, 25, 0.012),
-            rgba(47, 35, 25, 0.012) 1px,
+            rgba(0, 0, 0, 0.03),
+            rgba(0, 0, 0, 0.03) 1px,
             transparent 1px,
-            transparent 10px
+            transparent 9px
           );
-        opacity: 0.75;
+        mix-blend-mode: overlay;
+        opacity: 0.9;
       }
 
-      /* Grid is for numbers / squares; canvas draws snakes & ladders; token floats above */
+      .board::after {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        pointer-events: none;
+        background:
+          radial-gradient(circle at 50% 50%, transparent 58%, rgba(0, 0, 0, 0.22) 95%);
+        opacity: 0.9;
+      }
+
       .boardGrid {
         position: absolute;
-        inset: 0;
+        inset: 14px;
+        border-radius: 12px;
+        overflow: hidden;
         display: grid;
         grid-template-columns: repeat(10, 1fr);
         grid-template-rows: repeat(10, 1fr);
+        box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.24);
       }
 
       .cell {
         position: relative;
-        padding: 8px;
-        border-right: 1px solid rgba(47, 35, 25, 0.14);
-        border-bottom: 1px solid rgba(47, 35, 25, 0.14);
-        user-select: none;
+        border-right: 1px solid rgba(0, 0, 0, 0.22);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.22);
+        background:
+          radial-gradient(circle at 25% 20%, rgba(255, 255, 255, 0.06), transparent 60%),
+          radial-gradient(circle at 70% 75%, rgba(0, 0, 0, 0.1), transparent 62%);
       }
 
       .cell:nth-child(10n) {
         border-right: none;
       }
-
       .cell:nth-last-child(-n + 10) {
         border-bottom: none;
       }
@@ -252,200 +201,120 @@
         content: "";
         position: absolute;
         inset: 0;
-        background:
-          linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0)),
-          radial-gradient(circle at 25% 22%, rgba(47, 35, 25, 0.06), transparent 55%);
-        opacity: 0.9;
         pointer-events: none;
+        background:
+          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.04), transparent 55%),
+          radial-gradient(circle at 70% 80%, rgba(0, 0, 0, 0.06), transparent 55%);
+        opacity: 0.65;
       }
 
-      .cell:nth-child(odd)::before {
-        opacity: 0.75;
-      }
-
+      /* Very small numbers, barely there */
       .cellNum {
         position: absolute;
-        top: 7px;
-        left: 8px;
-        font-size: 12px;
-        color: rgba(25, 19, 14, 0.72);
-        font-variant-numeric: tabular-nums;
-        text-shadow: 0 1px 0 rgba(255, 255, 255, 0.45);
+        top: 6px;
+        left: 7px;
+        font-size: 9px;
+        letter-spacing: 0.2px;
+        color: rgba(255, 255, 255, 0.36);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        text-shadow: 0 1px 0 rgba(0, 0, 0, 0.25);
+        user-select: none;
       }
 
-      .cellBadges {
+      canvas.paths {
         position: absolute;
-        bottom: 7px;
-        left: 8px;
-        right: 8px;
-        display: flex;
-        gap: 6px;
-        flex-wrap: wrap;
+        inset: 14px;
+        width: calc(100% - 28px);
+        height: calc(100% - 28px);
+        pointer-events: none;
       }
 
-      .badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        padding: 4px 7px;
-        border-radius: 999px;
-        font-size: 11px;
-        border: 1px solid rgba(47, 35, 25, 0.2);
-        background: rgba(255, 255, 255, 0.55);
-        color: rgba(25, 19, 14, 0.82);
-        box-shadow: 0 10px 18px rgba(47, 35, 25, 0.12);
-      }
-
-      .badge.ladder {
-        border-color: rgba(22, 163, 74, 0.35);
-        background: rgba(22, 163, 74, 0.12);
-      }
-      .badge.snake {
-        border-color: rgba(220, 38, 38, 0.35);
-        background: rgba(220, 38, 38, 0.12);
-      }
-
-      canvas#paths {
+      .pieces {
         position: absolute;
-        inset: 0;
+        inset: 14px;
+        pointer-events: none;
+      }
+
+      .piece {
+        position: absolute;
+        width: 30px;
+        height: 30px;
+        transform: translate(-50%, -50%);
+        filter:
+          drop-shadow(0 10px 16px rgba(0, 0, 0, 0.35))
+          drop-shadow(0 2px 0 rgba(255, 255, 255, 0.08));
+        opacity: 0.98;
+      }
+
+      .piece svg {
         width: 100%;
         height: 100%;
-        pointer-events: none;
+        display: block;
       }
 
-      .tokenLayer {
+      .pieceLabel {
         position: absolute;
-        inset: 0;
-        pointer-events: none;
+        left: 50%;
+        top: 34px;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: rgba(240, 236, 229, 0.6);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        white-space: nowrap;
+        display: none;
       }
 
-      .token {
-        position: absolute;
-        width: 22px;
-        height: 22px;
-        border-radius: 10px;
-        transform: translate(-50%, -50%);
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.25) 35%, rgba(59, 130, 246, 0.95) 78%),
-          linear-gradient(180deg, rgba(59, 130, 246, 0.88), rgba(37, 99, 235, 0.92));
-        border: 1px solid rgba(47, 35, 25, 0.25);
-        box-shadow: 0 14px 30px rgba(47, 35, 25, 0.16);
-      }
-
-      .token::after {
-        content: "";
-        position: absolute;
-        inset: -6px;
-        border-radius: 999px;
-        background: radial-gradient(circle, rgba(59, 130, 246, 0.18), transparent 65%);
-        filter: blur(0.6px);
-      }
-
-      .token::before {
-        /* tiny "face" hint (adds a human touch) */
-        content: "";
-        position: absolute;
-        left: 6px;
-        top: 8px;
-        width: 10px;
-        height: 6px;
-        background:
-          radial-gradient(circle at 25% 50%, rgba(25, 19, 14, 0.8) 1.4px, transparent 1.6px),
-          radial-gradient(circle at 75% 50%, rgba(25, 19, 14, 0.8) 1.4px, transparent 1.6px);
-        opacity: 0.55;
-      }
-
-      .sideCard {
-        padding: 14px;
-        display: grid;
-        gap: 12px;
-        align-content: start;
-      }
-
-      .panelTitle {
+      .quietSide .row {
         display: flex;
-        align-items: baseline;
+        align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 2px 2px 2px;
+        padding: 6px 0;
+        border-bottom: 1px dashed rgba(240, 236, 229, 0.14);
       }
 
-      .panelTitle h2 {
-        margin: 0;
-        font-size: 15px;
-        letter-spacing: 0.2px;
+      .quietSide .row:last-child {
+        border-bottom: none;
       }
 
-      .panelTitle .small {
-        color: var(--muted2);
-        font-size: 12px;
+      .quietSide .label {
+        color: rgba(240, 236, 229, 0.6);
       }
 
-      .stats {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-      }
-
-      .stat {
-        padding: 12px;
-        border-radius: var(--radius2);
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      .stat .label {
-        color: var(--muted2);
-        font-size: 11px;
-      }
-      .stat .value {
-        margin-top: 6px;
-        font-size: 18px;
-        font-variant-numeric: tabular-nums;
+      .quietSide .value {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
+          monospace;
+        color: rgba(240, 236, 229, 0.82);
       }
 
       .controls {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
+        margin-top: 10px;
+        display: grid;
+        gap: 8px;
       }
 
       button {
         appearance: none;
-        border: 1px solid rgba(47, 35, 25, 0.2);
-        background: rgba(255, 255, 255, 0.55);
-        color: var(--text);
-        padding: 10px 12px;
+        background: rgba(240, 236, 229, 0.06);
+        border: 1px solid rgba(240, 236, 229, 0.16);
+        color: rgba(240, 236, 229, 0.86);
+        padding: 10px 10px;
         border-radius: 12px;
-        font-weight: 650;
-        font-size: 13px;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        font-size: 12px;
         letter-spacing: 0.2px;
         cursor: pointer;
-        transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
+        transition: background 120ms ease, transform 120ms ease;
       }
 
       button:hover {
+        background: rgba(240, 236, 229, 0.1);
         transform: translateY(-1px);
-        background: rgba(255, 255, 255, 0.72);
-        border-color: rgba(47, 35, 25, 0.28);
       }
 
       button:active {
         transform: translateY(0px);
-      }
-
-      button.primary {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.9), rgba(22, 163, 74, 0.78));
-        border-color: rgba(47, 35, 25, 0.22);
-      }
-
-      button.primary:hover {
-        background: linear-gradient(135deg, rgba(59, 130, 246, 0.98), rgba(22, 163, 74, 0.9));
-      }
-
-      button.danger {
-        background: rgba(220, 38, 38, 0.12);
-        border-color: rgba(220, 38, 38, 0.35);
       }
 
       button:disabled {
@@ -454,61 +323,64 @@
         transform: none;
       }
 
+      .minorLink {
+        display: inline-block;
+        margin-top: 10px;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        font-size: 12px;
+        color: rgba(240, 236, 229, 0.62);
+        text-decoration: underline;
+        text-decoration-style: dotted;
+        text-underline-offset: 4px;
+      }
+
       .log {
-        padding: 12px;
-        border-radius: var(--radius2);
-        border: 1px solid rgba(47, 35, 25, 0.16);
-        background: rgba(255, 255, 255, 0.55);
-        min-height: 160px;
-        max-height: 260px;
+        margin-top: 12px;
+        padding: 8px 0 0;
+        color: rgba(240, 236, 229, 0.7);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        font-size: 12px;
+        max-height: 72px; /* ~1/4 of the old log height */
         overflow: auto;
-        font-size: 13px;
-        color: rgba(25, 19, 14, 0.82);
       }
 
       .log p {
-        margin: 0 0 8px 0;
+        margin: 0 0 6px 0;
       }
 
-      .log p:last-child {
-        margin-bottom: 0;
+      .setup {
+        margin: 12px auto 0;
+        width: min(520px, calc(100vw - 24px));
+        padding: 16px 14px;
+        border: 1px solid rgba(240, 236, 229, 0.14);
+        border-radius: 16px;
+        background: rgba(240, 236, 229, 0.04);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        color: rgba(240, 236, 229, 0.86);
       }
 
-      .mono {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-          monospace;
-        font-variant-numeric: tabular-nums;
+      .setup h2 {
+        margin: 0 0 10px 0;
+        font-size: 14px;
+        font-weight: 650;
       }
 
-      .pill {
-        display: inline-flex;
+      .setup .choices {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 8px;
-        border-radius: 999px;
-        padding: 7px 10px;
-        border: 1px solid rgba(47, 35, 25, 0.18);
-        background: rgba(255, 255, 255, 0.6);
-        box-shadow: 0 10px 25px rgba(47, 35, 25, 0.14);
-        color: rgba(25, 19, 14, 0.84);
-        font-size: 12px;
       }
 
-      .kbd {
-        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New",
-          monospace;
-        font-size: 11px;
-        padding: 1px 6px;
-        border-radius: 8px;
-        border: 1px solid rgba(47, 35, 25, 0.18);
-        background: rgba(47, 35, 25, 0.08);
-        color: rgba(25, 19, 14, 0.82);
+      .choiceBtn {
+        padding: 10px 12px;
       }
 
-      footer {
-        padding: 18px;
-        color: rgba(25, 19, 14, 0.55);
+      .note {
+        margin-top: 10px;
+        color: rgba(240, 236, 229, 0.62);
         font-size: 12px;
-        text-align: center;
+        line-height: 1.25;
       }
 
       .srOnly {
@@ -522,292 +394,187 @@
         white-space: nowrap;
         border: 0;
       }
-
-      .toast {
-        position: fixed;
-        left: 50%;
-        bottom: 18px;
-        transform: translateX(-50%);
-        padding: 12px 14px;
-        border-radius: 14px;
-        border: 1px solid rgba(47, 35, 25, 0.18);
-        background: rgba(255, 255, 255, 0.82);
-        color: rgba(25, 19, 14, 0.9);
-        box-shadow: var(--shadow);
-        max-width: min(680px, calc(100vw - 26px));
-        display: none;
-        z-index: 30;
-      }
-
-      .toast.show {
-        display: block;
-      }
-
-      /* Dice face (more "game-y" than a plain number). */
-      .dieRow {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .die {
-        width: 34px;
-        height: 34px;
-        border-radius: 10px;
-        position: relative;
-        background:
-          radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.35) 45%, transparent 70%),
-          linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.72));
-        border: 1px solid rgba(47, 35, 25, 0.24);
-        box-shadow: 0 12px 24px rgba(47, 35, 25, 0.16);
-        transform: translateZ(0);
-      }
-
-      .die.rolling {
-        animation: dieJitter 420ms ease-in-out;
-      }
-
-      @keyframes dieJitter {
-        0% {
-          transform: rotate(0deg) translateY(0px);
-        }
-        20% {
-          transform: rotate(-8deg) translateY(-1px);
-        }
-        45% {
-          transform: rotate(10deg) translateY(1px);
-        }
-        70% {
-          transform: rotate(-6deg) translateY(-1px);
-        }
-        100% {
-          transform: rotate(0deg) translateY(0px);
-        }
-      }
-
-      .pip {
-        position: absolute;
-        width: 6.6px;
-        height: 6.6px;
-        border-radius: 99px;
-        background: rgba(25, 19, 14, 0.78);
-        box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
-        opacity: 0;
-      }
-
-      .pip.tl {
-        left: 7px;
-        top: 7px;
-      }
-      .pip.tc {
-        left: 50%;
-        top: 7px;
-        transform: translateX(-50%);
-      }
-      .pip.tr {
-        right: 7px;
-        top: 7px;
-      }
-      .pip.ml {
-        left: 7px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-      .pip.c {
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-      }
-      .pip.mr {
-        right: 7px;
-        top: 50%;
-        transform: translateY(-50%);
-      }
-      .pip.bl {
-        left: 7px;
-        bottom: 7px;
-      }
-      .pip.bc {
-        left: 50%;
-        bottom: 7px;
-        transform: translateX(-50%);
-      }
-      .pip.br {
-        right: 7px;
-        bottom: 7px;
-      }
-
-      .die[data-value="1"] .pip.c {
-        opacity: 1;
-      }
-      .die[data-value="2"] .pip.tl,
-      .die[data-value="2"] .pip.br {
-        opacity: 1;
-      }
-      .die[data-value="3"] .pip.tl,
-      .die[data-value="3"] .pip.c,
-      .die[data-value="3"] .pip.br {
-        opacity: 1;
-      }
-      .die[data-value="4"] .pip.tl,
-      .die[data-value="4"] .pip.tr,
-      .die[data-value="4"] .pip.bl,
-      .die[data-value="4"] .pip.br {
-        opacity: 1;
-      }
-      .die[data-value="5"] .pip.tl,
-      .die[data-value="5"] .pip.tr,
-      .die[data-value="5"] .pip.c,
-      .die[data-value="5"] .pip.bl,
-      .die[data-value="5"] .pip.br {
-        opacity: 1;
-      }
-      .die[data-value="6"] .pip.tl,
-      .die[data-value="6"] .pip.tr,
-      .die[data-value="6"] .pip.ml,
-      .die[data-value="6"] .pip.mr,
-      .die[data-value="6"] .pip.bl,
-      .die[data-value="6"] .pip.br {
-        opacity: 1;
-      }
     </style>
   </head>
   <body>
-    <div class="page">
-      <header>
-        <div class="titleRow">
-          <div class="brand">
-            <div class="logo" aria-hidden="true"></div>
-            <div>
-              <h1>Snakes & Ladders</h1>
-              <p class="subtitle">A one-page video game. Roll, climb, slide, and reach 100.</p>
+    <!-- Hidden SVG defs for metallic pieces -->
+    <svg class="srOnly" aria-hidden="true">
+      <defs>
+        <linearGradient id="silverGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#fafafa" stop-opacity="0.98" />
+          <stop offset="0.22" stop-color="#d9d9d9" stop-opacity="0.98" />
+          <stop offset="0.5" stop-color="#bdbdbd" stop-opacity="0.98" />
+          <stop offset="0.78" stop-color="#f3f3f3" stop-opacity="0.98" />
+          <stop offset="1" stop-color="#9f9f9f" stop-opacity="0.98" />
+        </linearGradient>
+        <linearGradient id="silverEdge" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="rgba(0,0,0,0.22)" />
+          <stop offset="1" stop-color="rgba(255,255,255,0.22)" />
+        </linearGradient>
+        <filter id="metalRough" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="7" />
+          <feColorMatrix type="matrix" values="
+            1 0 0 0 0
+            0 1 0 0 0
+            0 0 1 0 0
+            0 0 0 0.16 0" />
+          <feComposite operator="in" in2="SourceGraphic" />
+          <feBlend mode="overlay" in2="SourceGraphic" />
+        </filter>
+
+        <symbol id="piece-shoe" viewBox="0 0 64 64">
+          <path
+            d="M10 40c6 0 10-6 14-14 3-7 7-10 12-10 4 0 6 3 8 6 2 4 4 7 9 9 4 2 7 4 7 8 0 6-6 9-16 9H18c-8 0-12-3-12-8 0-3 2-6 4-6z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M16 41c9 2 20 2 32 0"
+            stroke="rgba(0,0,0,0.22)"
+            stroke-width="1.2"
+            stroke-linecap="round"
+            opacity="0.55"
+          />
+        </symbol>
+
+        <symbol id="piece-hat" viewBox="0 0 64 64">
+          <path
+            d="M30 10c10 10 16 22 16 30 0 7-6 10-14 10-7 0-14-3-14-10 0-9 4-18 12-30z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M10 44c8 5 36 5 44 0"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+        </symbol>
+
+        <symbol id="piece-dog" viewBox="0 0 64 64">
+          <path
+            d="M18 44c0-10 7-18 16-18 7 0 12 4 14 9 3 0 6 2 6 6 0 5-4 8-9 8-1 5-6 9-13 9-9 0-14-6-14-14z"
+            fill="url(#silverGrad)"
+            stroke="rgba(0,0,0,0.35)"
+            stroke-width="1.5"
+            filter="url(#metalRough)"
+          />
+          <path
+            d="M23 33c-3-2-6-5-6-9 0-5 5-7 9-5"
+            fill="none"
+            stroke="rgba(0,0,0,0.24)"
+            stroke-width="1.3"
+            stroke-linecap="round"
+            opacity="0.6"
+          />
+        </symbol>
+      </defs>
+    </svg>
+
+    <!-- SINGLE PLAYER VIEW -->
+    <section class="view active" id="singleView" aria-label="Single player">
+      <div class="shell">
+        <div class="title">LeNard’s board game</div>
+        <div class="stage">
+          <div class="boardArea">
+            <div class="board" id="singleBoard">
+              <canvas class="paths" id="singleCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
+              <div class="boardGrid" id="singleGrid" aria-hidden="true"></div>
+              <div class="pieces" id="singlePieces" aria-hidden="true"></div>
             </div>
           </div>
-          <div class="topActions">
-            <span class="pill" title="Keyboard shortcuts">
-              <span class="mono">Shortcuts</span>
-              <span class="kbd">Space</span>
-              <span class="mono">roll</span>
-              <span class="kbd">R</span>
-              <span class="mono">reset</span>
-            </span>
+          <aside class="quietSide" aria-label="Controls">
+            <div class="row">
+              <div class="label">Turn</div>
+              <div class="value" id="singleTurn">1</div>
+            </div>
+            <div class="row">
+              <div class="label">On</div>
+              <div class="value" id="singlePos">1</div>
+            </div>
+            <div class="row">
+              <div class="label">Last</div>
+              <div class="value" id="singleLast">—</div>
+            </div>
+            <div class="row">
+              <div class="label">Piece</div>
+              <div class="value" id="singlePieceName">—</div>
+            </div>
+            <div class="controls">
+              <button id="singleRoll" type="button">Roll</button>
+              <button id="singleNewBoard" type="button">New board</button>
+              <button id="singleReset" type="button">Reset</button>
+            </div>
+            <a class="minorLink" href="#multiplayer" id="toMulti">Multiplayer</a>
+            <div class="log" id="singleLog" aria-live="polite"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- MULTIPLAYER VIEW -->
+    <section class="view" id="multiView" aria-label="Multiplayer">
+      <div class="shell">
+        <div class="title">LeNard’s board game</div>
+
+        <div class="setup" id="multiSetup">
+          <h2>Multiplayer</h2>
+          <div class="choices" role="group" aria-label="Choose number of players">
+            <button class="choiceBtn" id="choose2" type="button">2 players</button>
+            <button class="choiceBtn" id="choose3" type="button">3 players</button>
+          </div>
+          <div class="note">
+            Each player gets a little silver thing. Try not to get swallowed immediately.
+            <div style="margin-top: 8px">
+              <a class="minorLink" href="#single" id="toSingle">Back to single-player</a>
+            </div>
           </div>
         </div>
-      </header>
 
-      <main>
-        <section class="card boardCard" aria-label="Game board">
-          <div class="boardTop">
-            <div>
-              <div class="mono" style="font-weight: 750; letter-spacing: 0.2px">Board</div>
-              <div class="hint">Start at 1. Exact roll to land on 100 wins.</div>
-            </div>
-            <div class="mono" style="color: rgba(255, 255, 255, 0.75); font-size: 12px">
-              Snakes: <span id="snakeCount">—</span> · Ladders: <span id="ladderCount">—</span>
+        <div class="stage" id="multiStage" style="display: none">
+          <div class="boardArea">
+            <div class="board" id="multiBoard">
+              <canvas class="paths" id="multiCanvas" width="1000" height="1000" aria-hidden="true"></canvas>
+              <div class="boardGrid" id="multiGrid" aria-hidden="true"></div>
+              <div class="pieces" id="multiPieces" aria-hidden="true"></div>
             </div>
           </div>
-
-          <div class="boardWrap" id="boardWrap">
-            <canvas id="paths" width="1000" height="1000" aria-hidden="true"></canvas>
-            <div class="boardGrid" id="boardGrid" aria-hidden="true"></div>
-            <div class="tokenLayer" aria-hidden="true">
-              <div class="token" id="token"></div>
+          <aside class="quietSide" aria-label="Controls">
+            <div class="row">
+              <div class="label">Player</div>
+              <div class="value" id="multiPlayer">1</div>
             </div>
-          </div>
-        </section>
-
-        <aside class="card sideCard" aria-label="Game controls">
-          <div class="panelTitle">
-            <h2>Controls</h2>
-            <div class="small">Single-player</div>
-          </div>
-
-          <div class="stats" role="group" aria-label="Current status">
-            <div class="stat">
-              <div class="label">Position</div>
-              <div class="value mono"><span id="pos">1</span> / 100</div>
+            <div class="row">
+              <div class="label">On</div>
+              <div class="value" id="multiPos">1</div>
             </div>
-            <div class="stat">
-              <div class="label">Last roll</div>
-              <div class="value mono"><span id="lastRoll">—</span></div>
+            <div class="row">
+              <div class="label">Last</div>
+              <div class="value" id="multiLast">—</div>
             </div>
-            <div class="stat">
-              <div class="label">Turns</div>
-              <div class="value mono"><span id="turns">0</span></div>
+            <div class="controls">
+              <button id="multiRoll" type="button">Roll</button>
+              <button id="multiNewBoard" type="button">New board</button>
+              <button id="multiReset" type="button">Reset</button>
             </div>
-            <div class="stat">
-              <div class="label">Status</div>
-              <div class="value"><span id="statusText">Ready</span></div>
-            </div>
-          </div>
-
-          <div class="controls">
-            <button class="primary" id="rollBtn" type="button">Roll die</button>
-            <button id="newBoardBtn" type="button" title="Generate new snakes & ladders">
-              New board
-            </button>
-            <button class="danger" id="resetBtn" type="button">Reset run</button>
-          </div>
-
-          <div class="panelTitle" style="margin-top: 2px">
-            <h2>Game log</h2>
-            <div class="small">Most recent on top</div>
-          </div>
-          <div class="log" id="log" aria-live="polite"></div>
-
-          <div class="panelTitle">
-            <h2>Rules</h2>
-            <div class="small">Quick</div>
-          </div>
-          <div style="color: rgba(255, 255, 255, 0.74); font-size: 13px; padding: 0 2px 4px">
-            - Roll 1–6 and move forward.<br />
-            - Land on a <span style="color: rgba(34, 197, 94, 0.95)">ladder</span> to climb up.<br />
-            - Land on a <span style="color: rgba(239, 68, 68, 0.95)">snake</span> to slide down.<br />
-            - If a roll would pass 100, you don’t move.
-          </div>
-        </aside>
-      </main>
-
-      <footer>
-        Built as a single HTML file — open `index.html` in any browser.
-      </footer>
-    </div>
-
-    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+            <a class="minorLink" href="#single">Single-player</a>
+            <div class="log" id="multiLog" aria-live="polite"></div>
+          </aside>
+        </div>
+      </div>
+    </section>
 
     <script>
-      // Snakes & Ladders: one-page, no dependencies.
-      // Board numbering is serpentine: bottom row 1..10 (left→right), next row 11..20 (right→left), ... top ends at 100.
-
       const $ = (id) => document.getElementById(id);
-      const els = {
-        boardWrap: $("boardWrap"),
-        boardGrid: $("boardGrid"),
-        canvas: $("paths"),
-        token: $("token"),
-        rollBtn: $("rollBtn"),
-        resetBtn: $("resetBtn"),
-        newBoardBtn: $("newBoardBtn"),
-        pos: $("pos"),
-        lastRoll: $("lastRoll"),
-        turns: $("turns"),
-        statusText: $("statusText"),
-        log: $("log"),
-        snakeCount: $("snakeCount"),
-        ladderCount: $("ladderCount"),
-        toast: $("toast"),
-      };
 
-      const state = {
-        pos: 1,
-        lastRoll: null,
-        turns: 0,
-        locked: false,
-        finished: false,
-        // mapping: start -> end
-        snakes: new Map(),
-        ladders: new Map(),
-      };
+      function clamp(n, a, b) {
+        return Math.max(a, Math.min(b, n));
+      }
 
       function randInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -817,386 +584,812 @@
         return randInt(1, 6);
       }
 
-      function coordForSquare(n) {
-        // Returns normalized center coordinates in [0..1] for given square 1..100.
-        // Row 0 is bottom row (squares 1..10).
-        const idx = n - 1;
-        const row = Math.floor(idx / 10); // 0..9 bottom→top
-        const colInRow = idx % 10;
-        const isReversed = row % 2 === 1;
-        const col = isReversed ? 9 - colInRow : colInRow;
-
-        const x = (col + 0.5) / 10;
-        const y = 1 - (row + 0.5) / 10;
-        return { x, y, row, col };
-      }
-
-      function pixelForSquare(n) {
-        const rect = els.boardWrap.getBoundingClientRect();
-        const { x, y } = coordForSquare(n);
-        return {
-          x: rect.width * x,
-          y: rect.height * y,
+      function mulberry32(seed) {
+        let a = seed >>> 0;
+        return function () {
+          a |= 0;
+          a = (a + 0x6d2b79f5) | 0;
+          let t = Math.imul(a ^ (a >>> 15), 1 | a);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
         };
       }
 
-      function setTokenPosition(n, { animate = true } = {}) {
-        const p = pixelForSquare(n);
-        els.token.style.transition = animate ? "left 220ms ease, top 220ms ease" : "none";
-        els.token.style.left = `${p.x}px`;
-        els.token.style.top = `${p.y}px`;
+      function hashPair(a, b) {
+        // Simple deterministic seed for (a,b)
+        return ((a * 73856093) ^ (b * 19349663)) >>> 0;
       }
 
-      function clearLog() {
-        els.log.innerHTML = "";
+      function coordForSquare(n) {
+        // Serpentine numbering: bottom row 1..10 L->R, next row 11..20 R->L, ...
+        const idx = n - 1;
+        const row = Math.floor(idx / 10); // 0..9 bottom->top
+        const colInRow = idx % 10;
+        const reversed = row % 2 === 1;
+        const col = reversed ? 9 - colInRow : colInRow;
+        const x = (col + 0.5) / 10;
+        const y = 1 - (row + 0.5) / 10;
+        return { x, y };
       }
 
-      function logLine(text) {
-        const p = document.createElement("p");
-        p.textContent = text;
-        els.log.prepend(p);
+      function pickUnique(items, count) {
+        const arr = items.slice();
+        for (let i = arr.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr.slice(0, count);
       }
 
-      let toastTimer = null;
-      function toast(message) {
-        els.toast.textContent = message;
-        els.toast.classList.add("show");
-        if (toastTimer) window.clearTimeout(toastTimer);
-        toastTimer = window.setTimeout(() => {
-          els.toast.classList.remove("show");
-        }, 2200);
+      function createPieceEl(shape, label) {
+        const el = document.createElement("div");
+        el.className = "piece";
+        el.dataset.shape = shape;
+        el.setAttribute("aria-hidden", "true");
+        el.innerHTML = `
+          <svg viewBox="0 0 64 64" role="img" aria-label="${label}">
+            <use href="#piece-${shape}"></use>
+          </svg>
+          <div class="pieceLabel">${label}</div>
+        `;
+        return el;
       }
 
-      function updateStats() {
-        els.pos.textContent = String(state.pos);
-        els.lastRoll.textContent = state.lastRoll == null ? "—" : String(state.lastRoll);
-        els.turns.textContent = String(state.turns);
-
-        if (state.finished) els.statusText.textContent = "You win!";
-        else if (state.locked) els.statusText.textContent = "Moving…";
-        else els.statusText.textContent = "Ready";
+      function layoutOffsets(count, radius) {
+        // Non-overlapping-ish offsets around a point.
+        // Intentionally slightly imperfect (tiny jitter).
+        if (count <= 1) return [{ x: 0, y: 0, s: 1 }];
+        const base =
+          count === 2
+            ? [
+                { x: -radius * 0.7, y: 0, s: 0.88 },
+                { x: radius * 0.7, y: 0.1 * radius, s: 0.88 },
+              ]
+            : [
+                { x: -radius * 0.65, y: radius * 0.35, s: 0.82 },
+                { x: radius * 0.7, y: radius * 0.25, s: 0.82 },
+                { x: 0.05 * radius, y: -radius * 0.65, s: 0.82 },
+              ];
+        return base.map((p) => ({
+          x: p.x + (Math.random() - 0.5) * 1.2,
+          y: p.y + (Math.random() - 0.5) * 1.2,
+          s: p.s,
+        }));
       }
 
-      function setButtonsEnabled(enabled) {
-        els.rollBtn.disabled = !enabled;
-        els.newBoardBtn.disabled = !enabled;
-        els.resetBtn.disabled = !enabled;
-      }
+      class BoardArt {
+        constructor(boardEl, canvasEl) {
+          this.boardEl = boardEl;
+          this.canvasEl = canvasEl;
+        }
 
-      function drawBoardNumbersAndBadges() {
-        els.boardGrid.innerHTML = "";
+        squareToPixel(n) {
+          const rect = this.boardEl.getBoundingClientRect();
+          const inset = 14;
+          const inner = {
+            left: inset,
+            top: inset,
+            w: rect.width - inset * 2,
+            h: rect.height - inset * 2,
+          };
+          const { x, y } = coordForSquare(n);
+          return { x: inner.left + inner.w * x, y: inner.top + inner.h * y };
+        }
 
-        // We render cells in visual top-left → bottom-right order,
-        // but label them with the serpentine numbers.
-        for (let visualRow = 9; visualRow >= 0; visualRow--) {
-          for (let visualCol = 0; visualCol < 10; visualCol++) {
-            const cell = document.createElement("div");
-            cell.className = "cell";
+        resizeCanvas() {
+          const rect = this.boardEl.getBoundingClientRect();
+          const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
+          this.canvasEl.width = Math.floor(rect.width * dpr);
+          this.canvasEl.height = Math.floor(rect.height * dpr);
+          const ctx = this.canvasEl.getContext("2d");
+          if (!ctx) return null;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          return ctx;
+        }
 
-            // Convert visual position to square number
-            const logicalRow = 9 - visualRow; // 0 bottom .. 9 top
-            const isReversed = logicalRow % 2 === 1;
-            const colInRow = isReversed ? 9 - visualCol : visualCol;
-            const n = logicalRow * 10 + colInRow + 1;
+        draw(boardMap) {
+          const ctx = this.resizeCanvas();
+          if (!ctx) return;
+          const rect = this.boardEl.getBoundingClientRect();
+          ctx.clearRect(0, 0, rect.width, rect.height);
 
-            const num = document.createElement("div");
-            num.className = "cellNum";
-            num.textContent = String(n);
-            cell.appendChild(num);
+          // Slight ink smudge layer
+          ctx.save();
+          ctx.globalAlpha = 0.12;
+          ctx.fillStyle = "rgba(0,0,0,0.22)";
+          for (let i = 0; i < 16; i++) {
+            const x = Math.random() * rect.width;
+            const y = Math.random() * rect.height;
+            const r = 18 + Math.random() * 26;
+            ctx.beginPath();
+            ctx.ellipse(x, y, r * 1.2, r, (Math.random() - 0.5) * 0.6, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
 
-            const badges = document.createElement("div");
-            badges.className = "cellBadges";
-
-            if (state.ladders.has(n)) {
-              const b = document.createElement("span");
-              b.className = "badge ladder";
-              b.textContent = `Ladder ↑${state.ladders.get(n)}`;
-              badges.appendChild(b);
-            }
-            if (state.snakes.has(n)) {
-              const b = document.createElement("span");
-              b.className = "badge snake";
-              b.textContent = `Snake ↓${state.snakes.get(n)}`;
-              badges.appendChild(b);
-            }
-            cell.appendChild(badges);
-
-            els.boardGrid.appendChild(cell);
+          // Ladders first (so snakes can overlay a little)
+          for (const [from, to] of boardMap.ladders.entries()) {
+            this.drawLadder(ctx, from, to, hashPair(from, to) ^ 0x8f2a);
+          }
+          for (const [from, to] of boardMap.snakes.entries()) {
+            this.drawSnake(ctx, from, to, hashPair(from, to) ^ 0x33c9);
           }
         }
-      }
 
-      function drawPaths() {
-        const canvas = els.canvas;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        drawLadder(ctx, from, to, seed) {
+          const rnd = mulberry32(seed);
+          const a = this.squareToPixel(from);
+          const b = this.squareToPixel(to);
 
-        // Match canvas internal resolution to on-screen size for crisp lines.
-        const rect = els.boardWrap.getBoundingClientRect();
-        const dpr = Math.max(1, Math.floor(window.devicePixelRatio || 1));
-        canvas.width = Math.floor(rect.width * dpr);
-        canvas.height = Math.floor(rect.height * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-
-        ctx.clearRect(0, 0, rect.width, rect.height);
-
-        function drawConnection(from, to, kind) {
-          const a = pixelForSquare(from);
-          const b = pixelForSquare(to);
-
-          // Control points for a smooth curve (slight sideways bend).
           const dx = b.x - a.x;
           const dy = b.y - a.y;
-          const bend = Math.min(140, Math.max(60, Math.hypot(dx, dy) * 0.18));
-          const angle = Math.atan2(dy, dx) + (kind === "ladder" ? 0.55 : -0.55);
-          const c1 = { x: a.x + Math.cos(angle) * bend, y: a.y + Math.sin(angle) * bend };
-          const c2 = { x: b.x - Math.cos(angle) * bend, y: b.y - Math.sin(angle) * bend };
+          const len = Math.hypot(dx, dy);
+          const ux = dx / (len || 1);
+          const uy = dy / (len || 1);
+          const nx = -uy;
+          const ny = ux;
+
+          // Rails spacing
+          const rail = clamp(10 + rnd() * 5, 10, 16);
+          const railW = clamp(4.6 + rnd() * 1.6, 4.6, 7.2);
+
+          const woodBase = "rgba(136, 92, 58, 0.92)";
+          const woodDark = "rgba(70, 42, 22, 0.55)";
+          const woodHi = "rgba(250, 240, 220, 0.18)";
+
+          function jitter(t) {
+            return (rnd() - 0.5) * t;
+          }
+
+          // Rails
+          for (const side of [-1, 1]) {
+            const ox = nx * rail * side;
+            const oy = ny * rail * side;
+            ctx.save();
+            ctx.lineCap = "round";
+            ctx.lineJoin = "round";
+            ctx.shadowColor = "rgba(0,0,0,0.25)";
+            ctx.shadowBlur = 10;
+            ctx.lineWidth = railW;
+            ctx.strokeStyle = woodBase;
+            ctx.beginPath();
+            ctx.moveTo(a.x + ox + jitter(0.8), a.y + oy + jitter(0.8));
+
+            // A slightly bowed rail (old wood)
+            const mid = {
+              x: (a.x + b.x) / 2 + nx * (rnd() - 0.5) * 18,
+              y: (a.y + b.y) / 2 + ny * (rnd() - 0.5) * 18,
+            };
+            ctx.quadraticCurveTo(mid.x + ox, mid.y + oy, b.x + ox + jitter(0.8), b.y + oy + jitter(0.8));
+            ctx.stroke();
+
+            // Dark grain line
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 1.3;
+            ctx.globalAlpha = 0.55;
+            ctx.strokeStyle = woodDark;
+            ctx.beginPath();
+            ctx.moveTo(a.x + ox, a.y + oy);
+            ctx.quadraticCurveTo(mid.x + ox, mid.y + oy, b.x + ox, b.y + oy);
+            ctx.stroke();
+
+            // Highlight edge
+            ctx.globalAlpha = 0.7;
+            ctx.strokeStyle = woodHi;
+            ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(a.x + ox + nx * 1.2, a.y + oy + ny * 1.2);
+            ctx.quadraticCurveTo(
+              mid.x + ox + nx * 1.2,
+              mid.y + oy + ny * 1.2,
+              b.x + ox + nx * 1.2,
+              b.y + oy + ny * 1.2,
+            );
+            ctx.stroke();
+            ctx.restore();
+          }
+
+          // Rungs
+          const rungCount = clamp(Math.floor(len / 48) + 2, 4, 9);
+          for (let i = 1; i <= rungCount; i++) {
+            const t = i / (rungCount + 1);
+            const px = a.x + dx * t + (rnd() - 0.5) * 2.2;
+            const py = a.y + dy * t + (rnd() - 0.5) * 2.2;
+
+            ctx.save();
+            ctx.lineCap = "round";
+            ctx.shadowColor = "rgba(0,0,0,0.24)";
+            ctx.shadowBlur = 8;
+            ctx.lineWidth = clamp(3.8 + rnd() * 1.2, 3.8, 5.4);
+            ctx.strokeStyle = woodBase;
+            ctx.beginPath();
+            ctx.moveTo(px - nx * rail + jitter(0.9), py - ny * rail + jitter(0.9));
+            ctx.lineTo(px + nx * rail + jitter(0.9), py + ny * rail + jitter(0.9));
+            ctx.stroke();
+
+            // Little cracks (old, slightly broken)
+            ctx.shadowBlur = 0;
+            ctx.globalAlpha = 0.6;
+            ctx.strokeStyle = "rgba(40, 24, 12, 0.45)";
+            ctx.lineWidth = 1;
+            const crackN = 1 + Math.floor(rnd() * 3);
+            for (let c = 0; c < crackN; c++) {
+              const cx = px + (rnd() - 0.5) * 10;
+              const cy = py + (rnd() - 0.5) * 6;
+              ctx.beginPath();
+              ctx.moveTo(cx, cy);
+              ctx.lineTo(cx + (rnd() - 0.5) * 10, cy + (rnd() - 0.5) * 10);
+              ctx.stroke();
+            }
+
+            // Moss flecks near cracks
+            ctx.globalAlpha = 0.8;
+            ctx.fillStyle = "rgba(34, 110, 52, 0.55)";
+            const moss = Math.floor(rnd() * 4);
+            for (let m = 0; m < moss; m++) {
+              const mx = px + (rnd() - 0.5) * 18;
+              const my = py + (rnd() - 0.5) * 10;
+              ctx.beginPath();
+              ctx.arc(mx, my, 1 + rnd() * 2.2, 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.restore();
+          }
+        }
+
+        drawSnake(ctx, from, to, seed) {
+          // "Black mamba-ish": tapered, glossy black body, slight lateral undulation, a head.
+          const rnd = mulberry32(seed);
+          const a = this.squareToPixel(from);
+          const b = this.squareToPixel(to);
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const len = Math.hypot(dx, dy);
+          const steps = clamp(Math.floor(len / 16), 18, 60);
+          const baseW = clamp(10 + rnd() * 6, 10, 18);
+          const wiggle = clamp(10 + rnd() * 12, 10, 20);
+
+          // A curvy centerline sampled as points
+          const pts = [];
+          const dir = { x: dx / (len || 1), y: dy / (len || 1) };
+          const nrm = { x: -dir.y, y: dir.x };
+
+          const phase = rnd() * Math.PI * 2;
+          const freq = 2.1 + rnd() * 1.6;
+          for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const ease = t * t * (3 - 2 * t);
+            const px = a.x + dx * ease;
+            const py = a.y + dy * ease;
+            const w = Math.sin(phase + t * Math.PI * 2 * freq) * wiggle * (0.25 + 0.75 * Math.sin(Math.PI * t));
+            const jitter = (rnd() - 0.5) * 0.9;
+            pts.push({
+              x: px + nrm.x * w + jitter,
+              y: py + nrm.y * w - jitter,
+              t,
+            });
+          }
+
+          // Build a filled ribbon (left/right offsets)
+          const left = [];
+          const right = [];
+          for (let i = 0; i < pts.length; i++) {
+            const p = pts[i];
+            const p0 = pts[Math.max(0, i - 1)];
+            const p1 = pts[Math.min(pts.length - 1, i + 1)];
+            const vx = p1.x - p0.x;
+            const vy = p1.y - p0.y;
+            const vlen = Math.hypot(vx, vy) || 1;
+            const nx = -vy / vlen;
+            const ny = vx / vlen;
+            const taper = 0.18 + 0.82 * Math.sin(Math.PI * p.t);
+            const width = baseW * taper * (0.92 + (rnd() - 0.5) * 0.08);
+            left.push({ x: p.x + nx * width, y: p.y + ny * width, t: p.t });
+            right.push({ x: p.x - nx * width, y: p.y - ny * width, t: p.t });
+          }
 
           ctx.save();
+          ctx.shadowColor = "rgba(0,0,0,0.38)";
+          ctx.shadowBlur = 18;
+
+          // Body fill
+          ctx.fillStyle = "rgba(10, 10, 10, 0.92)";
+          ctx.beginPath();
+          ctx.moveTo(left[0].x, left[0].y);
+          for (let i = 1; i < left.length; i++) ctx.lineTo(left[i].x, left[i].y);
+          for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i].x, right[i].y);
+          ctx.closePath();
+          ctx.fill();
+
+          // Gloss highlight (thin, not perfect)
+          ctx.shadowBlur = 0;
+          ctx.globalAlpha = 0.35;
+          ctx.strokeStyle = "rgba(255,255,255,0.22)";
+          ctx.lineWidth = 2.2;
           ctx.lineCap = "round";
           ctx.lineJoin = "round";
-
-          if (kind === "ladder") {
-            ctx.strokeStyle = "rgba(34, 197, 94, 0.72)";
-            ctx.shadowColor = "rgba(34, 197, 94, 0.25)";
-          } else {
-            ctx.strokeStyle = "rgba(239, 68, 68, 0.72)";
-            ctx.shadowColor = "rgba(239, 68, 68, 0.25)";
+          ctx.beginPath();
+          const hlStart = Math.floor(pts.length * 0.12);
+          const hlEnd = Math.floor(pts.length * 0.85);
+          for (let i = hlStart; i <= hlEnd; i++) {
+            const p = pts[i];
+            const offset = 2 + Math.sin(phase + p.t * 9) * 1.2;
+            if (i === hlStart) ctx.moveTo(p.x + offset, p.y - offset);
+            else ctx.lineTo(p.x + offset, p.y - offset);
           }
-          ctx.shadowBlur = 14;
-          ctx.lineWidth = 6;
-
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, b.x, b.y);
           ctx.stroke();
 
-          // Inner highlight line
-          ctx.shadowBlur = 0;
-          ctx.lineWidth = 2.5;
-          ctx.strokeStyle = kind === "ladder" ? "rgba(255,255,255,0.55)" : "rgba(255,255,255,0.42)";
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.bezierCurveTo(c1.x, c1.y, c2.x, c2.y, b.x, b.y);
-          ctx.stroke();
+          // Head (at "from") - mamba-ish wedge
+          const head = pts[0];
+          const neck = pts[2] || pts[1] || head;
+          const hx = head.x;
+          const hy = head.y;
+          const vx = head.x - neck.x;
+          const vy = head.y - neck.y;
+          const vlen = Math.hypot(vx, vy) || 1;
+          const fx = vx / vlen;
+          const fy = vy / vlen;
+          const px = -fy;
+          const py = fx;
+          const headL = clamp(16 + rnd() * 8, 16, 24);
+          const headW = clamp(10 + rnd() * 6, 10, 16);
 
-          // Endpoint dot
-          ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
+          ctx.globalAlpha = 0.95;
+          ctx.fillStyle = "rgba(12, 12, 12, 0.96)";
           ctx.beginPath();
-          ctx.arc(b.x, b.y, 3.5, 0, Math.PI * 2);
+          ctx.moveTo(hx + fx * headL, hy + fy * headL);
+          ctx.lineTo(hx + px * headW, hy + py * headW);
+          ctx.lineTo(hx - px * headW, hy - py * headW);
+          ctx.closePath();
+          ctx.fill();
+
+          // Small eye glint
+          ctx.globalAlpha = 0.65;
+          ctx.fillStyle = "rgba(255,255,255,0.35)";
+          ctx.beginPath();
+          ctx.arc(hx + fx * (headL * 0.55) + px * 2.2, hy + fy * (headL * 0.55) + py * 2.2, 1.2, 0, Math.PI * 2);
           ctx.fill();
 
           ctx.restore();
         }
-
-        for (const [from, to] of state.ladders.entries()) drawConnection(from, to, "ladder");
-        for (const [from, to] of state.snakes.entries()) drawConnection(from, to, "snake");
       }
 
-      function hasAnyEndpointCollision(mapping, start, end) {
-        // Avoid overlapping endpoints with existing snakes/ladders.
-        for (const [a, b] of mapping.entries()) {
-          if (a === start || a === end || b === start || b === end) return true;
+      class Game {
+        constructor(opts) {
+          this.boardEl = opts.boardEl;
+          this.gridEl = opts.gridEl;
+          this.canvasEl = opts.canvasEl;
+          this.piecesEl = opts.piecesEl;
+          this.rollBtn = opts.rollBtn;
+          this.newBoardBtn = opts.newBoardBtn;
+          this.resetBtn = opts.resetBtn;
+          this.logEl = opts.logEl;
+          this.turnEl = opts.turnEl;
+          this.posEl = opts.posEl;
+          this.lastEl = opts.lastEl;
+          this.playerEl = opts.playerEl || null;
+          this.pieceNameEl = opts.pieceNameEl || null;
+
+          this.art = new BoardArt(this.boardEl, this.canvasEl);
+
+          this.board = { snakes: new Map(), ladders: new Map() };
+          this.players = [];
+          this.current = 0;
+          this.turnCount = 1;
+          this.lastRoll = null;
+          this.locked = false;
+          this.finished = false;
+          this.winner = null;
+
+          this._onResize = () => this.redraw();
         }
-        return false;
-      }
 
-      function generateBoard() {
-        // Clear
-        state.snakes.clear();
-        state.ladders.clear();
-
-        // Targets: classic-ish density but randomized.
-        const ladderTarget = 7;
-        const snakeTarget = 7;
-
-        const used = new Set([1, 100]);
-
-        function canUse(x) {
-          return x >= 2 && x <= 99 && !used.has(x);
+        init(numPlayers) {
+          this.buildGrid();
+          this.generateBoard();
+          this.startPlayers(numPlayers);
+          this.bind();
+          this.redraw();
+          this.log("All set. Try your luck.");
         }
 
-        function addPair(kind) {
-          let tries = 0;
-          while (tries++ < 2500) {
-            // Choose from/to ranges that feel fair.
-            let from, to;
-            if (kind === "ladder") {
-              from = randInt(2, 75);
-              to = randInt(from + 10, Math.min(99, from + 35));
-            } else {
-              from = randInt(15, 99);
-              to = randInt(Math.max(2, from - 35), from - 10);
+        destroy() {
+          window.removeEventListener("resize", this._onResize);
+        }
+
+        bind() {
+          this.rollBtn.addEventListener("click", () => this.turn());
+          this.newBoardBtn.addEventListener("click", () => this.reset({ newBoard: true }));
+          this.resetBtn.addEventListener("click", () => this.reset({ newBoard: false }));
+          window.addEventListener("resize", this._onResize);
+
+          window.addEventListener("keydown", (e) => {
+            if (document.querySelector(".view.active")?.contains(this.boardEl) !== true) return;
+            if (e.key === " " || e.key === "Spacebar") {
+              e.preventDefault();
+              this.turn();
+              return;
             }
+            if (e.key === "r" || e.key === "R") {
+              e.preventDefault();
+              this.reset({ newBoard: false });
+            }
+          });
+        }
 
-            if (from === to) continue;
-            if (!canUse(from) || !canUse(to)) continue;
+        setButtons(enabled) {
+          this.rollBtn.disabled = !enabled;
+          this.newBoardBtn.disabled = !enabled;
+          this.resetBtn.disabled = !enabled;
+        }
 
-            // Prevent direct conflicts
-            if (state.ladders.has(from) || state.snakes.has(from)) continue;
-            if (state.ladders.has(to) || state.snakes.has(to)) continue;
+        log(text) {
+          const p = document.createElement("p");
+          p.textContent = text;
+          this.logEl.prepend(p);
+        }
 
-            // Avoid shared endpoints within same kind and across kinds
-            if (
-              hasAnyEndpointCollision(state.ladders, from, to) ||
-              hasAnyEndpointCollision(state.snakes, from, to)
-            )
-              continue;
+        clearLog() {
+          this.logEl.innerHTML = "";
+        }
 
-            // Avoid ladder start immediately being snake head etc.
-            if (state.snakes.has(to) || state.ladders.has(to)) continue;
+        buildGrid() {
+          this.gridEl.innerHTML = "";
+          // Visual top-left to bottom-right, but serpentine numbers
+          for (let visualRow = 9; visualRow >= 0; visualRow--) {
+            for (let visualCol = 0; visualCol < 10; visualCol++) {
+              const cell = document.createElement("div");
+              cell.className = "cell";
 
-            // Avoid pairs that jump across too much of the board (keeps it fun)
-            const dist = Math.abs(to - from);
-            if (dist < 10 || dist > 40) continue;
+              const logicalRow = 9 - visualRow;
+              const reversed = logicalRow % 2 === 1;
+              const colInRow = reversed ? 9 - visualCol : visualCol;
+              const n = logicalRow * 10 + colInRow + 1;
 
-            // Accept
-            if (kind === "ladder") state.ladders.set(from, to);
-            else state.snakes.set(from, to);
+              const num = document.createElement("div");
+              num.className = "cellNum";
+              num.textContent = String(n);
+              cell.appendChild(num);
 
-            used.add(from);
-            used.add(to);
-            return true;
+              this.gridEl.appendChild(cell);
+            }
+          }
+        }
+
+        hasEndpointCollision(map, start, end) {
+          for (const [a, b] of map.entries()) {
+            if (a === start || a === end || b === start || b === end) return true;
           }
           return false;
         }
 
-        while (state.ladders.size < ladderTarget) {
-          if (!addPair("ladder")) break;
-        }
-        while (state.snakes.size < snakeTarget) {
-          if (!addPair("snake")) break;
-        }
+        generateBoard() {
+          this.board.snakes.clear();
+          this.board.ladders.clear();
+          const used = new Set([1, 100]);
 
-        els.ladderCount.textContent = String(state.ladders.size);
-        els.snakeCount.textContent = String(state.snakes.size);
+          const snakeTarget = 7;
+          const ladderTarget = 7;
 
-        drawBoardNumbersAndBadges();
-        drawPaths();
-      }
+          const canUse = (x) => x >= 2 && x <= 99 && !used.has(x);
 
-      function sleep(ms) {
-        return new Promise((r) => setTimeout(r, ms));
-      }
+          const addPair = (kind) => {
+            let tries = 0;
+            while (tries++ < 3000) {
+              let from, to;
+              if (kind === "ladder") {
+                from = randInt(2, 75);
+                to = randInt(from + 12, Math.min(99, from + 38));
+              } else {
+                from = randInt(18, 99);
+                to = randInt(Math.max(2, from - 38), from - 12);
+              }
+              if (!canUse(from) || !canUse(to)) continue;
+              if (this.board.ladders.has(from) || this.board.snakes.has(from)) continue;
+              if (this.board.ladders.has(to) || this.board.snakes.has(to)) continue;
+              if (this.hasEndpointCollision(this.board.ladders, from, to)) continue;
+              if (this.hasEndpointCollision(this.board.snakes, from, to)) continue;
+              const dist = Math.abs(to - from);
+              if (dist < 12 || dist > 42) continue;
+              if (kind === "ladder") this.board.ladders.set(from, to);
+              else this.board.snakes.set(from, to);
+              used.add(from);
+              used.add(to);
+              return true;
+            }
+            return false;
+          };
 
-      async function animateStepMove(from, to) {
-        const dir = to >= from ? 1 : -1;
-        const steps = Math.abs(to - from);
-        for (let i = 1; i <= steps; i++) {
-          setTokenPosition(from + dir * i, { animate: true });
-          await sleep(110);
-        }
-      }
-
-      async function doTurn() {
-        if (state.locked || state.finished) return;
-
-        state.locked = true;
-        setButtonsEnabled(false);
-
-        const roll = rollDie();
-        state.lastRoll = roll;
-        state.turns += 1;
-        updateStats();
-
-        logLine(`Turn ${state.turns}: you rolled a ${roll}.`);
-        toast(`Rolled ${roll}`);
-
-        const target = state.pos + roll;
-        if (target > 100) {
-          logLine(`Too high — you stay on ${state.pos}.`);
-          state.locked = false;
-          setButtonsEnabled(true);
-          updateStats();
-          return;
+          while (this.board.ladders.size < ladderTarget) {
+            if (!addPair("ladder")) break;
+          }
+          while (this.board.snakes.size < snakeTarget) {
+            if (!addPair("snake")) break;
+          }
         }
 
-        const start = state.pos;
-        await animateStepMove(start, target);
-        state.pos = target;
-        updateStats();
+        startPlayers(n) {
+          this.players = [];
+          this.piecesEl.innerHTML = "";
 
-        // Apply snakes/ladders after landing
-        if (state.ladders.has(state.pos)) {
-          const next = state.ladders.get(state.pos);
-          logLine(`Ladder! Climb from ${state.pos} to ${next}.`);
-          toast(`Ladder ↑ ${state.pos} → ${next}`);
-          await sleep(220);
-          await animateStepMove(state.pos, next);
-          state.pos = next;
-          updateStats();
-        } else if (state.snakes.has(state.pos)) {
-          const next = state.snakes.get(state.pos);
-          logLine(`Snake! Slide from ${state.pos} to ${next}.`);
-          toast(`Snake ↓ ${state.pos} → ${next}`);
-          await sleep(220);
-          await animateStepMove(state.pos, next);
-          state.pos = next;
-          updateStats();
+          const shapes = pickUnique(["shoe", "hat", "dog"], n);
+          const names = {
+            shoe: "shoe",
+            hat: "wizard hat",
+            dog: "dog",
+          };
+
+          for (let i = 0; i < n; i++) {
+            const shape = shapes[i];
+            const el = createPieceEl(shape, names[shape]);
+            el.dataset.player = String(i + 1);
+            this.piecesEl.appendChild(el);
+            this.players.push({
+              pos: 1,
+              shape,
+              name: names[shape],
+              el,
+            });
+          }
+
+          this.current = 0;
+          this.turnCount = 1;
+          this.lastRoll = null;
+          this.locked = false;
+          this.finished = false;
+          this.winner = null;
+
+          if (this.pieceNameEl && this.players[0]) {
+            this.pieceNameEl.textContent = this.players[0].name;
+          }
+          this.updateHud();
+          this.placePieces({ animate: false });
         }
 
-        if (state.pos === 100) {
-          state.finished = true;
-          logLine(`🎉 You reached 100 in ${state.turns} turns. You win!`);
-          toast(`You win in ${state.turns} turns!`);
+        reset({ newBoard }) {
+          this.setButtons(false);
+          this.clearLog();
+          if (newBoard) this.generateBoard();
+          for (const p of this.players) p.pos = 1;
+          this.current = 0;
+          this.turnCount = 1;
+          this.lastRoll = null;
+          this.locked = false;
+          this.finished = false;
+          this.winner = null;
+          this.redraw();
+          this.placePieces({ animate: false });
+          this.updateHud();
+          this.log(newBoard ? "Fresh board. Same bad luck." : "Back to square one.");
+          this.setButtons(true);
         }
 
-        state.locked = false;
-        setButtonsEnabled(true);
-        updateStats();
-      }
+        updateHud() {
+          const p = this.players[this.current];
+          if (!p) return;
 
-      function resetRun({ keepBoard = true } = {}) {
-        state.pos = 1;
-        state.lastRoll = null;
-        state.turns = 0;
-        state.locked = false;
-        state.finished = false;
+          if (this.playerEl) this.playerEl.textContent = String(this.current + 1);
+          if (this.turnEl) this.turnEl.textContent = String(this.turnCount);
+          if (this.posEl) this.posEl.textContent = String(p.pos);
+          if (this.lastEl) this.lastEl.textContent = this.lastRoll == null ? "—" : String(this.lastRoll);
+          if (this.pieceNameEl) this.pieceNameEl.textContent = p.name;
 
-        clearLog();
-        logLine("New run started. Roll to begin!");
+          if (this.finished && this.winner != null) {
+            // Keep it understated.
+            if (this.playerEl) this.playerEl.textContent = String(this.winner + 1);
+          }
+        }
 
-        if (!keepBoard) generateBoard();
+        redraw() {
+          this.art.draw(this.board);
+          this.placePieces({ animate: false });
+        }
 
-        updateStats();
-        setTokenPosition(1, { animate: false });
-      }
+        placePieces({ animate }) {
+          const rect = this.boardEl.getBoundingClientRect();
+          const inset = 14;
+          const inner = {
+            left: inset,
+            top: inset,
+            w: rect.width - inset * 2,
+            h: rect.height - inset * 2,
+          };
 
-      function ensureLayoutAndRedraw() {
-        // Token and canvas depend on boardWrap size.
-        setTokenPosition(state.pos, { animate: false });
-        drawPaths();
-      }
+          // Group players by square for "sharing the square"
+          const buckets = new Map();
+          for (let i = 0; i < this.players.length; i++) {
+            const pos = this.players[i].pos;
+            if (!buckets.has(pos)) buckets.set(pos, []);
+            buckets.get(pos).push(i);
+          }
 
-      function init() {
-        generateBoard();
-        resetRun({ keepBoard: true });
+          for (const [pos, idxs] of buckets.entries()) {
+            const { x, y } = coordForSquare(pos);
+            const cx = inner.left + inner.w * x;
+            const cy = inner.top + inner.h * y;
+            const offsets = layoutOffsets(idxs.length, 12);
 
-        els.rollBtn.addEventListener("click", doTurn);
-        els.resetBtn.addEventListener("click", () => resetRun({ keepBoard: true }));
-        els.newBoardBtn.addEventListener("click", () => resetRun({ keepBoard: false }));
+            idxs.forEach((playerIndex, j) => {
+              const p = this.players[playerIndex];
+              const off = offsets[j] || { x: 0, y: 0, s: 1 };
+              p.el.style.transition = animate ? "left 180ms ease, top 180ms ease, transform 180ms ease" : "none";
+              p.el.style.left = `${cx + off.x}px`;
+              p.el.style.top = `${cy + off.y}px`;
+              p.el.style.transform = `translate(-50%, -50%) scale(${off.s}) rotate(${(Math.random() - 0.5) * 2}deg)`;
+            });
+          }
+        }
 
-        window.addEventListener("resize", () => {
-          // Debounce-ish via rAF
-          window.requestAnimationFrame(ensureLayoutAndRedraw);
-        });
+        async sleep(ms) {
+          return new Promise((r) => setTimeout(r, ms));
+        }
 
-        window.addEventListener("keydown", (e) => {
-          if (e.key === " " || e.key === "Spacebar") {
-            e.preventDefault();
-            doTurn();
+        async animateWalk(player, from, to) {
+          const dir = to >= from ? 1 : -1;
+          const steps = Math.abs(to - from);
+          for (let i = 1; i <= steps; i++) {
+            player.pos = from + dir * i;
+            this.placePieces({ animate: true });
+            await this.sleep(85);
+          }
+        }
+
+        async turn() {
+          if (this.locked || this.finished) return;
+          const p = this.players[this.current];
+          if (!p) return;
+
+          this.locked = true;
+          this.setButtons(false);
+
+          const roll = rollDie();
+          this.lastRoll = roll;
+
+          const who = this.players.length > 1 ? `Player ${this.current + 1}` : "You";
+          this.log(`${who} rolled a ${roll}.`);
+          this.updateHud();
+
+          const target = p.pos + roll;
+          if (target > 100) {
+            this.log("Too much. Stay put.");
+            this.locked = false;
+            this.setButtons(true);
+            this.advanceTurn();
             return;
           }
-          if (e.key === "r" || e.key === "R") {
-            e.preventDefault();
-            resetRun({ keepBoard: true });
-          }
-        });
 
-        setButtonsEnabled(true);
+          const start = p.pos;
+          await this.animateWalk(p, start, target);
+          this.updateHud();
+
+          // Land -> check ladder/snake (no labels, just the visuals)
+          if (this.board.ladders.has(p.pos)) {
+            const next = this.board.ladders.get(p.pos);
+            this.log("Nice. Up you go.");
+            await this.sleep(180);
+            await this.animateWalk(p, p.pos, next);
+          } else if (this.board.snakes.has(p.pos)) {
+            const next = this.board.snakes.get(p.pos);
+            this.log("Oh. That one had opinions.");
+            await this.sleep(180);
+            await this.animateWalk(p, p.pos, next);
+          }
+
+          this.updateHud();
+          this.placePieces({ animate: true });
+
+          if (p.pos === 100) {
+            this.finished = true;
+            this.winner = this.current;
+            this.log(this.players.length > 1 ? `Player ${this.current + 1} made it.` : "Made it. Finally.");
+            this.locked = false;
+            this.setButtons(false);
+            return;
+          }
+
+          this.locked = false;
+          this.setButtons(true);
+          this.advanceTurn();
+        }
+
+        advanceTurn() {
+          if (this.players.length <= 1) {
+            this.turnCount += 1;
+            this.updateHud();
+            return;
+          }
+          this.current = (this.current + 1) % this.players.length;
+          this.turnCount += 1;
+          this.updateHud();
+        }
       }
 
-      init();
+      function showView(name) {
+        const singleView = $("singleView");
+        const multiView = $("multiView");
+        if (name === "multiplayer") {
+          singleView.classList.remove("active");
+          multiView.classList.add("active");
+        } else {
+          multiView.classList.remove("active");
+          singleView.classList.add("active");
+        }
+      }
+
+      // Single player game
+      const singleGame = new Game({
+        boardEl: $("singleBoard"),
+        gridEl: $("singleGrid"),
+        canvasEl: $("singleCanvas"),
+        piecesEl: $("singlePieces"),
+        rollBtn: $("singleRoll"),
+        newBoardBtn: $("singleNewBoard"),
+        resetBtn: $("singleReset"),
+        logEl: $("singleLog"),
+        turnEl: $("singleTurn"),
+        posEl: $("singlePos"),
+        lastEl: $("singleLast"),
+        pieceNameEl: $("singlePieceName"),
+      });
+
+      // Multiplayer game (created after choosing players)
+      let multiGame = null;
+
+      function startSingle() {
+        singleGame.init(1);
+        singleGame.setButtons(true);
+      }
+
+      function startMulti(numPlayers) {
+        $("multiSetup").style.display = "none";
+        $("multiStage").style.display = "flex";
+
+        if (multiGame) multiGame.destroy();
+        multiGame = new Game({
+          boardEl: $("multiBoard"),
+          gridEl: $("multiGrid"),
+          canvasEl: $("multiCanvas"),
+          piecesEl: $("multiPieces"),
+          rollBtn: $("multiRoll"),
+          newBoardBtn: $("multiNewBoard"),
+          resetBtn: $("multiReset"),
+          logEl: $("multiLog"),
+          turnEl: null,
+          posEl: $("multiPos"),
+          lastEl: $("multiLast"),
+          playerEl: $("multiPlayer"),
+        });
+        multiGame.init(numPlayers);
+        multiGame.setButtons(true);
+        multiGame.log("Alright. Be nice.");
+      }
+
+      function route() {
+        const hash = (location.hash || "").toLowerCase();
+        if (hash === "#multiplayer") {
+          showView("multiplayer");
+        } else {
+          showView("single");
+        }
+
+        // Keep multiplayer page cleanly separated:
+        // entering multiplayer view shows setup unless a game was started.
+        if (document.getElementById("multiView").classList.contains("active")) {
+          if (!$("multiStage").style.display || $("multiStage").style.display === "none") {
+            $("multiSetup").style.display = "block";
+            $("multiStage").style.display = "none";
+          }
+        }
+      }
+
+      $("choose2").addEventListener("click", () => startMulti(2));
+      $("choose3").addEventListener("click", () => startMulti(3));
+      window.addEventListener("hashchange", route);
+
+      // boot
+      if (!location.hash) location.hash = "#single";
+      startSingle();
+      route();
     </script>
   </body>
 </html>
